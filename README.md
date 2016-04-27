@@ -28,7 +28,7 @@ Steps :
     
   3- Exp :
   
-      java -Xms1024M -Xmx2048M -cp lib/ontop-materializer-1.16.jar ontop.Main            \
+      java -Xms1024M -Xmx2048M -cp ontop-materializer-1.17.jar ontop.Main                \
       
       -owl root-ontology.owl -nt pools.rdf -q " SELECT DISTINCT ?S ?P ?O { ?S ?P ?O } "  \ 
       
