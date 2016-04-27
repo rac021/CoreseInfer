@@ -6,7 +6,7 @@ inferred triples Generator ( using OWL + N-Triples input )
 
 Steps : 
 
- 1- mvn clean install 
+ 1- mvn clean install assembly:single
  
  2- Args :
  
