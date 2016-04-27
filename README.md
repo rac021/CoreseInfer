@@ -27,4 +27,4 @@ Steps :
            ?measu oboe-core:hasValue ?value . Filter ( regex( ?value, 'ph', 'i')) } "    \
            -out out/portail/coreseInferedTriples.nt -f 0 -ilv t -F xml                   \
       -e
-      
+     
