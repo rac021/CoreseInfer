@@ -1,3 +1,4 @@
+
 package corese;
 
 /**
@@ -13,23 +14,24 @@ import fr.inria.edelweiss.kgraph.core.Graph;
 import fr.inria.edelweiss.kgraph.query.QueryProcess;
 import fr.inria.edelweiss.kgraph.rule.RuleEngine;
 import fr.inria.edelweiss.kgtool.load.Load;
+import fr.inria.edelweiss.kgtool.print.ResultFormat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class Main {
       
-        private static volatile Main _instance = null;
+        private static volatile Main _instance = null ;
                 
         private static Graph        g   ;
         private static Load         ld  ;
-        
         private static RuleEngine   re  ;
       
-        int flushCount = 5000  ;
+        int flushCount = 10000  ;
         
         
         private Main(){}
@@ -76,99 +78,117 @@ public class Main {
            return dt.getLabel() ;
         }
       
-        public void genericRequest( String request    ,                                     
+       private void genericRequest( String request    ,                                     
                                     String outputFile , 
                                     int fragment      , 
                                     int numRequest    ,
-                                    boolean ilv 
+                                    boolean ilv       ,
+                                    String  format 
                                   ) throws IOException  {
               
-                List<String> variables = getVariables(request)  ;
-                QueryProcess exec      = QueryProcess.create(g) ;
-                Mappings map           = null                   ;
+                List<String> variables = getVariables(request);
+                     
+                QueryProcess exec = QueryProcess.create(g);
+                
+                Mappings map = null;
                 
                 try {
-                        map = exec.query(request);
-                }catch (EngineException e){
+                        map = exec.query(request );
+                } catch (EngineException e) {
                         System.err.println("catch : " + e);
                 }
 
-                List<String> lines = new ArrayList<>();
-                                
-                String res     = ""    ;
-                int count      = 0     ;
-                int loop       = 0     ;
-                
-                String currentFile     ;
-                
-                currentFile =  getCurrentFile(outputFile, numRequest, fragment , loop ) ;
-                Writer.checkFile( currentFile );
-                 
-                for (Mapping m : map) {
+                if(format.equalsIgnoreCase("n3")) {
                     
-                    for(String variable : variables ) {
-                       
-                        String dt =  toStringDataType(m, variable);
-                        
-                        if(dt == null ) continue ;
-                        
-                        if( dt.toLowerCase().startsWith("http://") ) {
-                           res += "<" + URLEncoder.encode(dt) + "> ";
-                        }
-                        else {
-                           res += "\"" + dt.replaceAll("\"", "'")
-                                           .replaceAll("\n", " ") + "\" ";   
-                        }
-                    }
-                    /* Ignore Blank node or literal values  */
-                    if(!ilv ) {
-                        count ++;                    
-                        lines.add( res + " . " ) ;
-                    }
-                    else if(res.startsWith("<http://") ) {
-                         count ++;                    
-                         lines.add( res + " . " ) ;
-                      }
+                    List<String> lines = new ArrayList<>();
 
-                    if(fragment != 0 && count % fragment == 0  ) {
-                       if(!lines.isEmpty()) {
-                          Writer.writeTextFile(lines, currentFile ) ;
-                          lines.clear();
-                          currentFile =  getCurrentFile(outputFile, numRequest, fragment , ++loop ) ;
-                          Writer.checkFile( currentFile );
-                       }
+                    String res     = ""    ;
+                    int count      = 0     ;
+                    int loop       = 0     ;
+
+                    String currentFile     ;
+
+                    currentFile =  getCurrentFile(outputFile, numRequest, fragment , loop ) ;
+                    Writer.checkFile( currentFile );
+
+                    for (Mapping m : map) {
+
+                        for(String variable : variables ) {
+
+                            String dt =  toStringDataType(m, variable);
+
+                            if(dt == null ) continue ;
+
+                            if( isURL(dt) ) {
+                                res += "<" + URLEncoder.encode(dt) + "> " ;
+                            }
+                            else {
+                               if(dt.toLowerCase().startsWith("_:")) {
+                                res += "<" + dt + "> ";
+                            }
+                            else
+                                res += "\"" + dt.replaceAll("\"", "'")
+                                                .replaceAll("\n", " ")
+                                                + "\"  ";
+                            }
+                        }
+                        /* Ignore Blank node OR literal values */
+                        if(!ilv ) {
+                            count ++;                    
+                            lines.add( res + " . " ) ;
+                        }
+                        else if( isURL(res) || res.startsWith("<_:") )  {
+                             count ++;                    
+                             lines.add( res + " . " ) ;
+                          }
+
+                        if(fragment != 0 && count % fragment == 0  ) {
+                            
+                           if(!lines.isEmpty()) {
+                              Writer.writeTextFile(lines, currentFile ) ;
+                              lines.clear();
+                              currentFile =  getCurrentFile( outputFile , 
+                                                             numRequest , 
+                                                             fragment   ,
+                                                             ++loop )   ;
+                              
+                              Writer.checkFile( currentFile );
+                           }
+                        }
+
+                        if( lines.size() % flushCount == 0 ) {                     
+                            Writer.writeTextFile(lines, currentFile ) ;
+                            lines.clear() ;
+                        }
+
+                        res = "" ;
                     }
-                    
-                    if( lines.size() % flushCount == 0 ) {                     
-                        Writer.writeTextFile(lines, currentFile ) ;
-                        lines.clear() ;
+
+                    if(!lines.isEmpty()) {
+                       Writer.writeTextFile(lines,  currentFile) ;
+                       lines.clear() ;                    
                     }
-                                        
-                    res = "" ;
+
+                    /* Delete last file if empty */
+                    if(Files.lines( Paths.get(currentFile)).count() == 0 ) {
+                       Paths.get(currentFile).toFile().delete();
+                    } 
                 }
                 
-                if(!lines.isEmpty()) {
-                   Writer.writeTextFile(lines,  currentFile) ;
-                   lines.clear() ;                    
+                else if (format.equalsIgnoreCase("xml") ) {
+                    Writer.checkFile( outputFile );
+                    ResultFormat f = ResultFormat.create(map);
+                   Writer.writeTextFile( Arrays.asList(f.toString()),  outputFile) ;
                 }
                 
                 /*
-                   print XML Result
-                   ResultFormat xmlOutput = ResultFormat.create(map);
-                   System.out.println(f); 
-                
                    print Turtle Result
-                   TripleFormat tfOutput = TripleFormat.create(g, true);
+                   TripleFormat f = TripleFormat.create(g, true);
                    System.out.println(f);
                 */
-                
-                /* Delete last file if empty */
-                if(Files.lines( Paths.get(currentFile)).count() == 0 ) {
-                   Paths.get(currentFile).toFile().delete();
-                } 
         }
-
-        public static List<String> getVariables( String sparqlQuery ) {
+        
+        private static List<String> getVariables( String sparqlQuery ) {
         
             List<String> variables = new ArrayList<>();
             
@@ -196,7 +216,7 @@ public class Main {
             return variables ;
         }
         
-        public static boolean isSelectQuery ( String query ) {
+        private static boolean isSelectQuery ( String query ) {
             return query.trim()
                         .replaceAll("\\s+", " ")
                         .toLowerCase()
@@ -207,15 +227,17 @@ public class Main {
         private static String getCurrentFile(  String outFile , 
                                                int numRequest , 
                                                int fragment   ,
-                                               int loop    )  {
+                                               int loop )     {
             if(fragment <=0 ) {
               return outFile ; 
             }
             if(Files.isDirectory(Paths.get(outFile)) ) {
                   if(outFile.endsWith("/")) {
-                   return outFile+numRequest+"."+loop ; }
-                   else {
-                   return outFile+"/"+numRequest+"."+loop ; }
+                    return outFile+numRequest+"."+loop ; 
+                  }
+                  else {
+                   return outFile+"/"+numRequest + "." + loop ; 
+                  }
             }
             else {
                 if(fragment > 0 ) {
@@ -226,8 +248,15 @@ public class Main {
             
        } 
         
+        private static boolean isURL( String path ) {
+        
+             return ( path.toLowerCase().startsWith("http://")  ||
+                      path.toLowerCase().startsWith("https://") ) 
+                    && !path.contains(" ") ;
+        }
+        
         public static void main(String[] args) throws IOException {
-
+            
             if( args.length < 6 ) {
                 System.out.println(" Nombre paramètres incomplet ! ");
                 return ;
@@ -239,6 +268,7 @@ public class Main {
             List<String> outs         = new ArrayList<>();
             List<Integer> fragments   = new ArrayList<>();
             List<String> ilvs         = new ArrayList<>();
+            List<String> formats      = new ArrayList<>();
             boolean entailment        = false            ;
 
             for ( int i = 0 ; i < args.length ; i++ ) {
@@ -257,29 +287,31 @@ public class Main {
                                    break ;
                     case "-f"   :  fragments.add(Integer.parseInt(args[i+1])) ;
                                    break ;
-                    case "-ilv" :  ilvs.add(args[i+1]) ;
+                    case "-ilv" :  ilvs.add(args[i+1])     ;
                                    break ;
-                    case "-e"   :  entailment = true; ;
+                    case "-e"   :  entailment = true;      ;
+                                   break ;
+                    case "-F"   :  formats.add(args[i+1])  ;
                                    break ;
                 }
             }
             
-            System.out.println(" Owls : ");
-            owls.stream().forEach( e -> System.out.println("  " + e )) ;
-            System.out.println(" nts  : ");
-            nts.stream().forEach( e -> System.out.println("  " + e ))  ;
+            System.out.println( " Owls : " ) ;
+            owls.stream().forEach( e -> System.out.println("  " + e ) ) ;
+            System.out.println(" nts  : " )  ;
+            nts.stream().forEach( e -> System.out.println("  " +e ) )   ;
                    
             if( owls.isEmpty() || nts.isEmpty() ) {
-                 System.out.println(" owl or nt parameter is empty !! ") ;
+                 System.out.println(" owl or nt parameter is empty !! " ) ;
                  return ;
             }
             
             if( ( queries.isEmpty() ) ) {
-                 System.out.println("  Error nbr parameters !! ");
-                 return ;
+                 System.out.println("  Error nbr parameters !! ") ;
+                 return  ;
             }
             if(  queries.size() != outs.size() || ( queries.size() != fragments.size() 
-                    || queries.size() != ilvs.size() )) {
+                    || queries.size() != ilvs.size()  || queries.size() != formats.size() )) {
                  System.out.println(" Bad size List queries-outs-fragment !! ");
                  return ;
             }
@@ -294,29 +326,31 @@ public class Main {
             /* Travers Queries */
                for(int i = 0; i< queries.size(); i++ ) {
                    
-                 if(isSelectQuery(queries.get(i))) {
+                if(isSelectQuery(queries.get(i)) || 
+                         (!isSelectQuery(queries.get(i)) &&  queries.get(i).equalsIgnoreCase("xml") )) {
                      
                    System.out.println("-------------------------------------------") ;
                    
                    System.out.println(" + Executing query : " + queries.get(i) )     ;
-                   System.out.println(" + Fragment        :  "+fragments.get(i))     ;
+                   System.out.println(" + FRAGMENT        :  "+fragments.get(i))     ;
                    System.out.println(" + Out             :  "+outs.get(i))          ;
               
                    boolean ilv = ilvs.get(i).toLowerCase().equals("t") ;
-                       
+
                    instance.genericRequest( queries.get(i)   , 
                                             outs.get(i)      ,  
                                             fragments.get(i) ,
                                             i                ,
-                                            ilv ) ; 
+                                            ilv              ,
+                                            formats.get(i) ) ; 
                    
                    System.out.println("-------------------------------------------") ;
-
-                 }
-                 else {
-                   System.out.println(queries.get(i) + " \n " +
-                   " not supported yet. Only Select Queries for the moment ! ");
-                 }
+             
+                }
+                else {
+                      System.out.println(queries.get(i) + " \n " +
+                      " not supported yet. Only Select Queries for the moment !") ;
+                }
                }
         }
 }
