@@ -1,2 +1,2 @@
 # CoreseInfer
-inferred triples Generator ( using N-Triples input )
+inferred triples Generator ( using OWL + N-Triples input )
