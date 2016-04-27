@@ -1,2 +1,2 @@
 # CoreseInfer
-inferred triples Generator
+inferred triples Generator ( using N-Triples input )
