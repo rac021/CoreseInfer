@@ -22,7 +22,7 @@ Steps :
     
     - ilv : if "t" : ignore All literal values ( in Subject ) , else "f" ( false )  ( Required )
     
-    - F   : output FOrmat ( n3, xml ) ( Required )
+    - F   : output Format ( n3, xml ) ( Required )
     
     - e   : enable entailment if "t" , default FALSE ( not Required ).
     
