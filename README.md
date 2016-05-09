@@ -2,7 +2,7 @@
 
 # CoreseInfer
 
-inferred triples Generator ( using OWL + N-Triples input )
+inferred triples Generator ( Ontology + N-Triples )
 
 Steps : 
 
