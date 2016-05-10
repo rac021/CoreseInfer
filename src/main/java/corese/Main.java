@@ -203,6 +203,7 @@ public class Main {
                                           .split(" ") ;
 
             for(String token : tokens ) {
+                  
                if(token.equalsIgnoreCase("AS")) {
                    variables.remove(variables.size() - 1 ) ;
                    continue ;
@@ -210,10 +211,12 @@ public class Main {
                
                if(token.startsWith("?") & !variables.contains(token )) {
                     variables.add(token) ;
-                }
+               }
+               
                else if( token.equalsIgnoreCase("where") ) break ;
             }
-            return variables ;
+            
+          return variables ;
         }
         
         private static boolean isSelectQuery ( String query ) {
