@@ -41,7 +41,7 @@ public class Main {
                         synchronized (Main.class){
                                 if (_instance == null) {
                                         _instance = new Main();
-                                        initialize(filesToLoad , entailment);
+                                        initialize(filesToLoad , entailment) ;
                                 }
                         }
                 }
@@ -51,19 +51,19 @@ public class Main {
         private static void initialize( List<String> filesToLoad, boolean entailment  ) {
           
             try {
-                g = Graph.create(entailment);             
+                g = Graph.create(entailment) ;             
                 ld = Load.create(g);
-                     for(String file : filesToLoad ){
-                           ld.load(file);
+                     for(String file : filesToLoad ) {
+                           ld.load(file) ;
                 }
             }
             catch (Exception ex) {
-                    ex.printStackTrace();
+                    ex.printStackTrace() ;
             }
         }
 
       private String toStringDataType ( Mapping m, String value ) {
-           IDatatype dt = (IDatatype) m.getValue(value);
+           IDatatype dt = (IDatatype) m.getValue(value) ;
            if(dt == null) return null ;
            dt.intValue()        ;
            dt.doubleValue()     ;
@@ -86,21 +86,21 @@ public class Main {
                                     String  format 
                                   ) throws IOException  {
               
-                List<String> variables = getVariables(request);
+                List<String> variables = getVariables(request)  ;
                      
-                QueryProcess exec = QueryProcess.create(g);
+                QueryProcess exec      = QueryProcess.create(g) ;
                 
                 Mappings map = null;
                 
                 try {
                         map = exec.query(request );
                 } catch (EngineException e) {
-                        System.err.println("catch : " + e);
+                        System.err.println("catch : " + e) ;
                 }
 
                 if(format.equalsIgnoreCase("n3")) {
                     
-                    List<String> lines = new ArrayList<>();
+                    List<String> lines = new ArrayList<>() ;
 
                     String res     = ""    ;
                     int count      = 0     ;
@@ -109,7 +109,7 @@ public class Main {
                     String currentFile     ;
 
                     currentFile =  getCurrentFile(outputFile, numRequest, fragment , loop ) ;
-                    Writer.checkFile( currentFile );
+                    Writer.checkFile( currentFile ) ;
 
                     for (Mapping m : map) {
 
@@ -129,7 +129,7 @@ public class Main {
                             else
                                 res += "\"" + dt.replaceAll("\"", "'")
                                                 .replaceAll("\n", " ")
-                                                + "\"  ";
+                                                + "\"  " ;
                             }
                         }
                         /* Ignore Blank node OR literal values */
@@ -171,7 +171,7 @@ public class Main {
 
                     /* Delete last file if empty */
                     if(Files.lines( Paths.get(currentFile)).count() == 0 ) {
-                       Paths.get(currentFile).toFile().delete();
+                       Paths.get(currentFile).toFile().delete() ;
                     } 
                 }
                 
@@ -190,7 +190,7 @@ public class Main {
         
         private static List<String> getVariables( String sparqlQuery ) {
         
-            List<String> variables = new ArrayList<>();
+            List<String> variables = new ArrayList<>() ;
             
             String[] tokens  = sparqlQuery.replaceAll("\\s+", " ")
                                           .replaceAll(Pattern.quote("("), " ")
@@ -200,11 +200,11 @@ public class Main {
                                           .replaceAll(Pattern.quote(","), " ")
                                           .replaceAll(Pattern.quote(";"), " ")
                                           .replaceAll(Pattern.quote("."), " ")
-                                          .split(" ");
+                                          .split(" ") ;
 
             for(String token : tokens ) {
                if(token.equalsIgnoreCase("AS")) {
-                   variables.remove(variables.size() - 1 );
+                   variables.remove(variables.size() - 1 ) ;
                    continue ;
                }
                
@@ -221,7 +221,7 @@ public class Main {
                         .replaceAll("\\s+", " ")
                         .toLowerCase()
                         .contains("select "
-                        .toLowerCase());
+                        .toLowerCase()) ;
         }
         
         private static String getCurrentFile(  String outFile , 
@@ -258,22 +258,22 @@ public class Main {
         public static void main(String[] args) throws IOException {
             
             if( args.length < 6 ) {
-                System.out.println(" Nombre paramètres incomplet ! ");
+                System.out.println(" Nombre paramètres incomplet ! ") ;
                 return ;
             }
             
-            List<String> owls         = new ArrayList<>();
-            List<String> nts          = new ArrayList<>();
-            List<String> queries      = new ArrayList<>();
-            List<String> outs         = new ArrayList<>();
-            List<Integer> fragments   = new ArrayList<>();
-            List<String> ilvs         = new ArrayList<>();
-            List<String> formats      = new ArrayList<>();
-            boolean entailment        = false            ;
+            List<String> owls         = new ArrayList<>() ;
+            List<String> nts          = new ArrayList<>() ;
+            List<String> queries      = new ArrayList<>() ;
+            List<String> outs         = new ArrayList<>() ;
+            List<Integer> fragments   = new ArrayList<>() ;
+            List<String> ilvs         = new ArrayList<>() ;
+            List<String> formats      = new ArrayList<>() ;
+            boolean entailment        = false             ;
 
             for ( int i = 0 ; i < args.length ; i++ ) {
                 
-                String token = args[i];
+                String token = args[i] ;
                 
                 switch(token) {
                     
@@ -296,9 +296,9 @@ public class Main {
                 }
             }
             
-            System.out.println( " Owls : " ) ;
+            System.out.println( " Owls : " )                            ;
             owls.stream().forEach( e -> System.out.println("  " + e ) ) ;
-            System.out.println(" nts  : " )  ;
+            System.out.println(" nts  : " )                             ;
             nts.stream().forEach( e -> System.out.println("  " +e ) )   ;
                    
             if( owls.isEmpty() || nts.isEmpty() ) {
@@ -312,7 +312,7 @@ public class Main {
             }
             if(  queries.size() != outs.size() || ( queries.size() != fragments.size() 
                     || queries.size() != ilvs.size()  || queries.size() != formats.size() )) {
-                 System.out.println(" Bad size List queries-outs-fragment !! ");
+                 System.out.println(" Bad size List queries-outs-fragment !! ") ;
                  return ;
             }
 
