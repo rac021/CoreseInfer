@@ -173,10 +173,12 @@ public class Main {
                     } 
                 }
                 
-                else if (format.equalsIgnoreCase("xml") ) {
-                    Writer.checkFile( outputFile );
-                    ResultFormat f = ResultFormat.create(map);
-                   Writer.writeTextFile( Arrays.asList(f.toString()),  outputFile) ;
+                else if (format.equalsIgnoreCase("xml") )     {
+                    Writer.checkFile( outputFile ) ;
+                    ResultFormat f = ResultFormat.create(map) ;
+                    Writer.writeTextFile( 
+                          Arrays.asList(f.toString()) , 
+                                                 outputFile ) ;
                 }
                 
                 /*
