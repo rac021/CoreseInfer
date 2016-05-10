@@ -6,22 +6,22 @@ package corese;
  * @author ryahiaoui
  */
 
-import fr.inria.acacia.corese.api.IDatatype;
-import fr.inria.acacia.corese.exceptions.EngineException;
-import fr.inria.edelweiss.kgram.core.Mapping;
-import fr.inria.edelweiss.kgram.core.Mappings;
-import fr.inria.edelweiss.kgraph.core.Graph;
-import fr.inria.edelweiss.kgraph.query.QueryProcess;
-import fr.inria.edelweiss.kgraph.rule.RuleEngine;
-import fr.inria.edelweiss.kgtool.load.Load;
-import fr.inria.edelweiss.kgtool.print.ResultFormat;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
+import fr.inria.acacia.corese.exceptions.EngineException ;
+import fr.inria.edelweiss.kgtool.print.ResultFormat      ;
+import fr.inria.edelweiss.kgraph.query.QueryProcess      ;
+import fr.inria.edelweiss.kgraph.rule.RuleEngine         ;
+import fr.inria.edelweiss.kgram.core.Mappings            ;
+import fr.inria.edelweiss.kgram.core.Mapping             ;
+import fr.inria.acacia.corese.api.IDatatype              ;
+import fr.inria.edelweiss.kgraph.core.Graph              ;
+import fr.inria.edelweiss.kgtool.load.Load               ;
+import java.util.regex.Pattern                           ;
+import java.io.IOException                               ;
+import java.nio.file.Files                               ;
+import java.nio.file.Paths                               ;
+import java.util.ArrayList                               ;
+import java.util.Arrays                                  ;
+import java.util.List                                    ;
 
 public class Main {
       
