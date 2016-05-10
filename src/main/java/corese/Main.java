@@ -86,11 +86,9 @@ public class Main {
                                     String  format 
                                   ) throws IOException  {
               
-                List<String> variables = getVariables(request)  ;
-                     
-                QueryProcess exec      = QueryProcess.create(g) ;
-                
-                Mappings map = null;
+                List<String> variables =  getVariables(request)  ;
+                QueryProcess exec      =  QueryProcess.create(g) ;
+                Mappings     map       =  null                   ;
                 
                 try {
                         map = exec.query(request );
