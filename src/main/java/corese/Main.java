@@ -38,14 +38,14 @@ public class Main {
 
         public static Main getInstance( List<String> filesToLoad, boolean entailment ) {
                 if (_instance == null) {
-                        synchronized (Main.class){
+                        synchronized (Main.class) {
                                 if (_instance == null) {
-                                        _instance = new Main();
+                                        _instance = new Main() ;
                                         initialize(filesToLoad , entailment) ;
                                 }
                         }
                 }
-                return _instance;
+                return _instance ;
         }
       
         private static void initialize( List<String> filesToLoad, boolean entailment  ) {
@@ -122,7 +122,7 @@ public class Main {
                             }
                             else {
                                if(dt.toLowerCase().startsWith("_:")) {
-                                res += "<" + dt + "> ";
+                                res += "<" + dt + "> " ;
                             }
                             else
                                 res += "\"" + dt.replaceAll("\"", "'")
@@ -207,7 +207,7 @@ public class Main {
                }
                
                if(token.startsWith("?") & !variables.contains(token )) {
-                    variables.add(token);
+                    variables.add(token) ;
                 }
                else if( token.equalsIgnoreCase("where") ) break ;
             }
@@ -283,21 +283,23 @@ public class Main {
                                    break ;
                     case "-q"   :  queries.add(args[i+1])   ; 
                                    break ;
-                    case "-f"   :  fragments.add(Integer.parseInt(args[i+1])) ;
+                    case "-f"   :  fragments.add(Integer
+                                            .parseInt(
+                                              args[i+1]) )  ;
                                    break ;
-                    case "-ilv" :  ilvs.add(args[i+1])     ;
+                    case "-ilv" :  ilvs.add(args[i+1])      ;
                                    break ;
-                    case "-e"   :  entailment = true;      ;
+                    case "-e"   :  entailment = true;       ;
                                    break ;
-                    case "-F"   :  formats.add(args[i+1])  ;
+                    case "-F"   :  formats.add(args[i+1])   ;
                                    break ;
                 }
             }
             
-            System.out.println( " Owls : " )                            ;
-            owls.stream().forEach( e -> System.out.println("  " + e ) ) ;
-            System.out.println(" nts  : " )                             ;
-            nts.stream().forEach( e -> System.out.println("  " +e ) )   ;
+            System.out.println( " Owls : " )                             ;
+            owls.stream().forEach( e -> System.out.println("  " + e ) )  ;
+            System.out.println(" nts  : " )                              ;
+            nts.stream().forEach( e ->  System.out.println("  " + e ) )  ;
                    
             if( owls.isEmpty() || nts.isEmpty() ) {
                  System.out.println(" owl or nt parameter is empty !! " ) ;
@@ -319,21 +321,22 @@ public class Main {
             entryFiles.addAll(nts)  ;
             
             /* Load Graph */
-            Main instance = Main.getInstance(entryFiles , entailment);
+            Main instance = Main.getInstance(entryFiles , entailment) ;
             
             /* Travers Queries */
                for(int i = 0; i< queries.size(); i++ ) {
                    
                 if(isSelectQuery(queries.get(i)) || 
-                         (!isSelectQuery(queries.get(i)) &&  queries.get(i).equalsIgnoreCase("xml") )) {
+                         (!isSelectQuery(queries.get(i)) &&  
+                                           queries.get(i).equalsIgnoreCase("xml") )) {
                      
-                   System.out.println("-------------------------------------------") ;
+                   System.out.println("-------------------------------------------")  ;
                    
-                   System.out.println(" + Executing query : " + queries.get(i) )     ;
-                   System.out.println(" + FRAGMENT        :  "+fragments.get(i))     ;
-                   System.out.println(" + Out             :  "+outs.get(i))          ;
+                   System.out.println(" + Executing query : "  + queries.get(i) )     ;
+                   System.out.println(" + FRAGMENT        :  " + fragments.get(i))    ;
+                   System.out.println(" + Out             :  " + outs.get(i))         ;
               
-                   boolean ilv = ilvs.get(i).toLowerCase().equals("t") ;
+                   boolean ilv = ilvs.get(i).toLowerCase().equals("t")                ;
 
                    instance.genericRequest( queries.get(i)   , 
                                             outs.get(i)      ,  
@@ -343,11 +346,11 @@ public class Main {
                                             formats.get(i) ) ; 
                    
                    System.out.println("-------------------------------------------") ;
-             
+                   
                 }
                 else {
                       System.out.println(queries.get(i) + " \n " +
-                      " not supported yet. Only Select Queries for the moment !") ;
+                      " Not supported yet. Only Select Queries for the moment !") ;
                 }
                }
         }
