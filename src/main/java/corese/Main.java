@@ -228,12 +228,12 @@ public class Main {
                                                int numRequest , 
                                                int fragment   ,
                                                int loop )     {
-            if(fragment <=0 ) {
+            if ( fragment <= 0 ) {
               return outFile ; 
             }
             if(Files.isDirectory(Paths.get(outFile)) ) {
                   if(outFile.endsWith("/")) {
-                    return outFile+numRequest+"."+loop ; 
+                    return outFile+numRequest + "." + loop    ; 
                   }
                   else {
                    return outFile+"/"+numRequest + "." + loop ; 
@@ -241,7 +241,7 @@ public class Main {
             }
             else {
                 if(fragment > 0 ) {
-                  return outFile+"."+loop ; }
+                  return outFile + "." + loop ; }
                 else {
                   return outFile ; }
             }
@@ -251,8 +251,8 @@ public class Main {
         private static boolean isURL( String path ) {
         
              return ( path.toLowerCase().startsWith("http://")  ||
-                      path.toLowerCase().startsWith("https://") ) 
-                    && !path.contains(" ") ;
+                      path.toLowerCase().startsWith("https://")  ) 
+                      && ! path.contains(" ") ;
         }
         
         public static void main(String[] args) throws IOException {
@@ -298,10 +298,10 @@ public class Main {
                 }
             }
             
-            System.out.println( " Owls : " )                             ;
-            owls.stream().forEach( e -> System.out.println("  " + e ) )  ;
-            System.out.println(" nts  : " )                              ;
-            nts.stream().forEach( e ->  System.out.println("  " + e ) )  ;
+            System.out.println( " Owls : " )                              ;
+            owls.stream().forEach( e -> System.out.println("  " + e ) )   ;
+            System.out.println(" nts  : " )                               ;
+            nts.stream().forEach( e ->  System.out.println("  " + e ) )   ;
                    
             if( owls.isEmpty() || nts.isEmpty() ) {
                  System.out.println(" owl or nt parameter is empty !! " ) ;
