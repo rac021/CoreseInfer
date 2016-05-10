@@ -245,7 +245,6 @@ public class Main {
                 else {
                   return outFile ; }
             }
-            
        } 
         
         private static boolean isURL( String path ) {
