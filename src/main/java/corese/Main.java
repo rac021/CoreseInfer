@@ -173,10 +173,10 @@ public class Main {
                     } 
                 }
                 
-                else if (format.equalsIgnoreCase("xml") )     {
-                    Writer.checkFile( outputFile ) ;
+                else if (format.equalsIgnoreCase("xml") )      {
+                    Writer.checkFile( outputFile )            ;
                     ResultFormat f = ResultFormat.create(map) ;
-                    Writer.writeTextFile( 
+                    Writer.writeTextFile ( 
                           Arrays.asList(f.toString()) , 
                                                  outputFile ) ;
                 }
@@ -255,7 +255,7 @@ public class Main {
                       && ! path.contains(" ") ;
         }
         
-        public static void main(String[] args) throws IOException {
+        public static void main( String[] args) throws IOException    {
             
             if( args.length < 6 ) {
                 System.out.println(" Nombre paramètres incomplet ! ") ;
