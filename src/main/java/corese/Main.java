@@ -76,6 +76,9 @@ public class Main {
            dt.isLiteral()       ;
            dt.isBlank()         ;
            return dt.getLabel() ;
+           /*
+           return dt.toString() ;
+           */
         }
       
        private void genericRequest( String request    ,                                     
