@@ -81,13 +81,13 @@ public class Main {
       }
       
       
-      private void genericRequest( String request     ,                                     
-                                    String outputFile , 
-                                    int fragment      , 
-                                    int numRequest    ,
-                                    boolean ilv       ,
+      private void genericRequest(  String  request    ,                                     
+                                    String  outputFile , 
+                                    int     fragment   , 
+                                    int     numRequest ,
+                                    boolean ilv        ,
                                     String  format 
-                                  ) throws IOException  {
+                                  ) throws  IOException  {
               
                 List<String> variables =  getVariables(request)  ;
                 QueryProcess exec      =  QueryProcess.create(g) ;
