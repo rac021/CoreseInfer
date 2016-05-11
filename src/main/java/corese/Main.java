@@ -1,4 +1,3 @@
-
 package corese;
 
 /**
@@ -58,13 +57,15 @@ public class Main {
                 }
             }
             catch (Exception ex) {
-                    ex.printStackTrace() ;
+                    ex.printStackTrace();
             }
         }
 
       private String toStringDataType ( Mapping m, String value ) {
+          
            IDatatype dt = (IDatatype) m.getValue(value) ;
            if(dt == null) return null ;
+           
            dt.intValue()        ;
            dt.doubleValue()     ;
            dt.booleanValue()    ;
@@ -72,16 +73,15 @@ public class Main {
            dt.getLabel()        ;
            dt.getDatatypeURI()  ;
            dt.getLang()         ;
-           dt.isURI()           ;
-           dt.isLiteral()       ;
-           dt.isBlank()         ;
-           return dt.getLabel() ;
-           /*
-           return dt.toString() ;
-           */
-        }
+           
+           if(dt.isURI() || dt.isBlank() )
+            return "<" + dt.getLabel() +">" ;
+           
+           return "\"" + dt.getLabel() + "\"^^" + dt.getDatatype() ;
+      }
       
-       private void genericRequest( String request    ,                                     
+      
+      private void genericRequest( String request     ,                                     
                                     String outputFile , 
                                     int fragment      , 
                                     int numRequest    ,
@@ -94,20 +94,20 @@ public class Main {
                 Mappings     map       =  null                   ;
                 
                 try {
-                        map = exec.query(request );
+                        map = exec.query(request ) ;
                 } catch (EngineException e) {
-                        System.err.println("catch : " + e) ;
+                        e.printStackTrace() ;
                 }
 
-                if(format.equalsIgnoreCase("n3")) {
+                if(format.equalsIgnoreCase("n3") ) {
                     
-                    List<String> lines = new ArrayList<>() ;
+                    List<String> lines = new ArrayList<> () ;
 
-                    String res     = ""    ;
-                    int count      = 0     ;
-                    int loop       = 0     ;
+                    String res    = ""    ;
+                    int    count  = 0     ;
+                    int    loop   = 0     ;
 
-                    String currentFile     ;
+                    String currentFile    ;
 
                     currentFile =  getCurrentFile(outputFile, numRequest, fragment , loop ) ;
                     Writer.checkFile( currentFile ) ;
@@ -116,43 +116,29 @@ public class Main {
 
                         for(String variable : variables ) {
 
-                            String dt =  toStringDataType(m, variable);
+                            String dt =  toStringDataType(m, variable) ;
 
                             if(dt == null ) continue ;
 
-                            if( isURL(dt) ) {
-                                res += "<" + URLEncoder.encode(dt) + "> " ;
-                            }
-                            else {
-                               if(dt.toLowerCase().startsWith("_:")) {
-                                res += "<" + dt + "> " ;
-                            }
-                            else
-                                res += "\"" + dt.replaceAll("\"", "'")
-                                                .replaceAll("\n", " ")
-                                                + "\"  " ;
-                            }
+                            res += dt + " " ;
                         }
-                        /* Ignore Blank node OR literal values */
-                        if(!ilv ) {
+                        
+                        /* Ignore literal values */                        
+                        if( !ilv || isURIOrBlank(res) ) {
                             count ++;                    
                             lines.add( res + " . " ) ;
                         }
-                        else if( isURL(res) || res.startsWith("<_:") )  {
-                             count ++;                    
-                             lines.add( res + " . " ) ;
-                          }
 
-                        if(fragment != 0 && count % fragment == 0  ) {
+                        if( fragment != 0 && count % fragment == 0  ) {
                             
-                           if(!lines.isEmpty()) {
+                           if(!lines.isEmpty() ) {
+                               
                               Writer.writeTextFile(lines, currentFile ) ;
                               lines.clear();
                               currentFile =  getCurrentFile( outputFile , 
                                                              numRequest , 
                                                              fragment   ,
-                                                             ++loop )   ;
-                              
+                                                             ++loop )   ;                              
                               Writer.checkFile( currentFile );
                            }
                         }
@@ -176,7 +162,7 @@ public class Main {
                     } 
                 }
                 
-                else if (format.equalsIgnoreCase("xml") )      {
+                else if (format.equalsIgnoreCase("xml") )     {
                     Writer.checkFile( outputFile )            ;
                     ResultFormat f = ResultFormat.create(map) ;
                     Writer.writeTextFile ( 
@@ -191,6 +177,15 @@ public class Main {
                 */
         }
         
+        private static boolean isURIOrBlank( String path ) {
+        
+             return ( path.toLowerCase().startsWith("http://")   ||
+                      path.toLowerCase().startsWith("https://")  ||
+                      path.startsWith("<_:") 
+                    ) 
+                    && ! path.contains(" ") ;
+        }
+          
         private static List<String> getVariables( String sparqlQuery ) {
         
             List<String> variables = new ArrayList<>() ;
@@ -252,13 +247,7 @@ public class Main {
                   return outFile ; }
             }
        } 
-        
-        private static boolean isURL( String path ) {
-        
-             return ( path.toLowerCase().startsWith("http://")  ||
-                      path.toLowerCase().startsWith("https://")  ) 
-                      && ! path.contains(" ") ;
-        }
+
         
         public static void main( String[] args) throws IOException    {
             
@@ -317,8 +306,13 @@ public class Main {
                  System.out.println("  Error nbr parameters !! ") ;
                  return  ;
             }
-            if(  queries.size() != outs.size() || ( queries.size() != fragments.size() 
-                    || queries.size() != ilvs.size()  || queries.size() != formats.size() )) {
+            
+            if(  queries.size() != outs.size()        || 
+                 ( queries.size() != fragments.size() || 
+                   queries.size() != ilvs.size()      || 
+                   queries.size() != formats.size() )
+                  )                                   {
+                 
                  System.out.println(" Bad size List queries-outs-fragment !! ") ;
                  return ;
             }
