@@ -207,7 +207,7 @@ public class Main {
                    continue ;
                }
                
-               if(token.startsWith("?") & !variables.contains(token )) {
+               if(token.startsWith("?") && !variables.contains(token )) {
                     variables.add(token) ;
                }
                
