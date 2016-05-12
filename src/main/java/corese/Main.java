@@ -22,6 +22,7 @@ import java.nio.file.Paths                               ;
 import java.util.ArrayList                               ;
 import java.util.Arrays                                  ;
 import java.util.List                                    ;
+import java.util.Objects;
 
 public class Main {
       
@@ -33,6 +34,8 @@ public class Main {
       
         int flushCount = 10000  ;
         
+        private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
+        private static final List<String> XSD     = Arrays.asList( "string", "integer", "decimal","double", "dateTime", "boolean" )                 ;
         
         private Main(){}
 
@@ -52,13 +55,13 @@ public class Main {
           
             try {
                 g = Graph.create(entailment) ;             
-                ld = Load.create(g);
+                ld = Load.create(g)  ;
                      for(String file : filesToLoad ) {
                            ld.load(file) ;
                 }
             }
             catch (Exception ex) {
-                    ex.printStackTrace();
+                    ex.printStackTrace() ;
             }
         }
 
@@ -75,10 +78,12 @@ public class Main {
            dt.getDatatypeURI()  ;
            dt.getLang()         ;
            
-           if(dt.isURI() || dt.isBlank() )
-            return "<" + dt.getLabel() +">" ;
-           
-           return "\"" + dt.getLabel() + "\"^^" + dt.getDatatype() ;
+           if(dt.isURI() || dt.isBlank() ) {
+             return "<" + dt.getLabel() +">" ;
+           }
+           return "\"" + dt.getLabel()
+                           .replaceAll("\"", "'")    + 
+                           "\"^^" + dt.getDatatype() ;
       }
       
       
@@ -97,7 +102,7 @@ public class Main {
                 try {
                         map = exec.query(request ) ;
                 } catch (EngineException e) {
-                        e.printStackTrace() ;
+                        e.printStackTrace()        ;
                 }
 
                 if(format.equalsIgnoreCase("n3") ) {
@@ -125,7 +130,7 @@ public class Main {
                         }
                         
                         /* Ignore literal values */                        
-                        if( !ilv || isURIOrBlank(res) ) {
+                        if( !ilv || isSubjectURIOrBlank(res) ) {
                             count ++;                    
                             lines.add( res + " . " ) ;
                         }
@@ -178,13 +183,18 @@ public class Main {
                 */
         }
         
-        private static boolean isURIOrBlank( String path ) {
-        
-             return ( path.toLowerCase().startsWith("http://")   ||
-                      path.toLowerCase().startsWith("https://")  ||
-                      path.startsWith("<_:") 
-                    ) 
-                    && ! path.contains(" ") ;
+        private static boolean isSubjectURIOrBlank( String path )   { 
+          
+          Objects.requireNonNull( path , 
+                  " isSubjectURIOrBlank parameter should not be null ") ;
+          if(path.isEmpty()) return false ;
+          
+          String subject = path.split(" ")[0] ;            
+          if(subject.startsWith("<") && subject.endsWith(">") )   {
+              return subject.substring(1, subject.lastIndexOf(">"))
+                            .matches(URI_VALIDATOR) ;
+          }
+          return false ;
         }
           
         private static List<String> getVariables( String sparqlQuery ) {
@@ -248,8 +258,24 @@ public class Main {
                   return outFile ; }
             }
        } 
-
         
+        private String getXSDType ( String value ) {
+           
+            if(value.startsWith("<")    && 
+               value.  endsWith(">")    && 
+               value.contains("^^xsd:") &&
+               valideXSD(value.substring(1, value.lastIndexOf(">"))
+                                      .split(Pattern.quote("^^xsd:"))[1]) ) {
+               return "^^xsd:" + value.substring(1, value.lastIndexOf(">"))
+                                      .split(Pattern.quote("^^xsd:"))[1]  ;
+            }
+            return null ;
+        }
+   
+        private boolean valideXSD( String xsd ) {
+            return XSD.contains(xsd);
+        }
+   
         public static void main( String[] args) throws IOException    {
             
             if( args.length < 6 ) {
@@ -352,7 +378,7 @@ public class Main {
                 }
                 else {
                       System.out.println(queries.get(i) + " \n " +
-                      " Not supported yet. Only Select Queries for the moment !") ;
+                      " Not supported yet. Only Select Queries for the moment !")    ;
                 }
                }
         }
