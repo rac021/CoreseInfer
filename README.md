@@ -6,8 +6,8 @@ inferred triples Generator ( Ontology + N-Triples )
 
 Steps : 
 
- 1- mvn clean install assembly:single
- 
+ 1- `mvn clean install assembly:single `
+
  2- Arguments :
  
     - owl : owl path file
