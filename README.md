@@ -10,9 +10,9 @@ Steps :
 
  2- Arguments :
  
-    - owl : owl path file
+    - owl : owl path file  ( Required if -nt is Empty ) 
     
-    - nt  : N-triple path file 
+    - nt  : turtle path file  ( Required if -owl is Empty ) 
     
     - out : output path file  ( Required )
     
