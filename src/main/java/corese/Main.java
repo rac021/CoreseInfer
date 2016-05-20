@@ -335,7 +335,7 @@ public class Main {
                  return  ;
             }
             
-            if(  queries.size() != outs.size()        || 
+            if(    queries.size() != outs.size()      || 
                  ( queries.size() != fragments.size() || 
                    queries.size() != ilvs.size()      || 
                    queries.size() != formats.size() )
