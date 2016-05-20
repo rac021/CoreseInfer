@@ -8,7 +8,7 @@ Steps :
 
  1- mvn clean install assembly:single
  
- 2- Args :
+ 2- Arguments :
  
     - owl : owl path file
     
