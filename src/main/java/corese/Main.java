@@ -230,6 +230,7 @@ public class Main {
         }
         
         private static boolean isSelectQuery ( String query ) {
+            System.out.println("++ query = " + query) ;
             return query.trim()
                         .replaceAll("\\s+", " ")
                         .toLowerCase()
