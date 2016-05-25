@@ -234,8 +234,7 @@ public class Main {
             return query.trim()
                         .replaceAll("\\s+", " ")
                         .toLowerCase()
-                        .contains("select "
-                        .toLowerCase()) ;
+                        .contains("select ") ;
         }
         
         private static String getCurrentFile(  String outFile , 
@@ -325,12 +324,15 @@ public class Main {
             owls.stream().forEach( e -> System.out.println("  " + e ) )   ;
             System.out.println(" nts  : " )                               ;
             nts.stream().forEach( e ->  System.out.println("  " + e ) )   ;
-                   
+            
+            System.out.println( "                                      ") ;
+            
             if( owls.isEmpty() || nts.isEmpty() ) {
                  System.out.println(" owl or nt parameter is empty !! " ) ;
                  return ;
             }
-            
+             queries.stream().forEach( e ->  System.out.println(" Query  " + e ) )   ;
+             
             if( ( queries.isEmpty() ) ) {
                  System.out.println("  Error nbr parameters !! ") ;
                  return  ;
