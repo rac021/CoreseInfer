@@ -2,7 +2,7 @@
 
 # CoreseInfer
 
-inferred triples Generator ( Ontology + N-Triples )
+inferred triples Generator ( Ontology + turtle )
 
 Steps : 
 
