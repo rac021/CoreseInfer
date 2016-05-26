@@ -10,21 +10,21 @@ Steps :
 
  2- Arguments :
  
-    - owl : owl path file  ( Required if -nt is Empty ) 
+    - owl : owl path file.  ( Required if -nt is Empty ) 
     
-    - nt  : turtle path file  ( Required if -owl is Empty ) 
+    - nt  : turtle path file.  ( Required if -owl is Empty ) 
     
-    - out : output path file  ( Required )
+    - out : output path file.  ( Required )
     
-    - q   : Sparql Query  ( Required )
+    - q   : Sparql Query.  ( Required )
     
     - f   : Fragment ( nbr triples by file )  if = 0 no fragmentation. ( Required )
     
-    - ilv : if "t" : ignore All literal values ( in Subject ) , else "f" ( false )  ( Required )
+    - ilv : if "t" : ignore All literal values ( in Subject ) , else "f" ( false ).  ( Required )
     
-    - F   : output Format ( n3, xml ) ( Required )
+    - F   : output Format ( n3, xml ). ( Required )
     
-    - e   : enable entailment if "t" , default FALSE ( not Required ).
+    - e   : enable entailment if "t" , default FALSE. ( not Required ).
     
   3- Exp :
   
