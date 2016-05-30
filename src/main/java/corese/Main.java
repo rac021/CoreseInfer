@@ -121,24 +121,21 @@ public class Main {
 
                     for (Mapping m : map) {
 
-                        for(String variable : variables ) {
-
+                        for(String variable : variables )              {
                             String dt =  toStringDataType(m, variable) ;
-
-                            if(dt == null ) continue ;
-
-                            res += dt + " " ;
+                            if(dt == null ) continue                   ;
+                            res +=  dt  +  " "                         ;
                         }
                         
                         /* Ignore literal values */                        
                         if( !ilv || isSubjectURIOrBlank(res) ) {
-                            count ++                 ;
-                            lines.add( res + " . " ) ;
+                            count ++                  ;
+                            lines.add( res + " . " )  ;
                         }
 
-                        if( fragment != 0 && count % fragment == 0  ) {
+                        if( fragment != 0 && count % fragment == 0  )   {
                             
-                           if(!lines.isEmpty() ) {
+                           if( ! lines.isEmpty() )  {
                                
                               Writer.writeTextFile(lines, currentFile ) ;
                               lines.clear();
@@ -215,13 +212,14 @@ public class Main {
 
             for(String token : tokens ) {
                   
-               if(token.equalsIgnoreCase("AS")) {
+               if(token.equalsIgnoreCase("AS"))            {
                    variables.remove(variables.size() - 1 ) ;
-                   continue ;
+                   continue                                ;
                }
                
-               if(token.startsWith("?") && !variables.contains(token )) {
-                    variables.add(token) ;
+               if( token.startsWith("?") && 
+                   !variables.contains(token )) {
+                     variables.add(token)       ;
                }
                
                else if( token.equalsIgnoreCase("where") ) break ;
@@ -333,8 +331,8 @@ public class Main {
             }
             
             if( ( queries.isEmpty() ) ) {
-                 System.out.println("  Error nbr parameters !! ") ;
-                 return                                           ;
+                 System.out.println("  Error nbr parameters !! ")         ;
+                 return                                                   ;
             }
             
             if (   queries.size() != outs.size()      || 
