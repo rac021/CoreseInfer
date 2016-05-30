@@ -132,7 +132,7 @@ public class Main {
                         
                         /* Ignore literal values */                        
                         if( !ilv || isSubjectURIOrBlank(res) ) {
-                            count ++;                    
+                            count ++                 ;
                             lines.add( res + " . " ) ;
                         }
 
@@ -146,13 +146,13 @@ public class Main {
                                                              numRequest , 
                                                              fragment   ,
                                                              ++loop )   ;                              
-                              Writer.checkFile( currentFile );
+                              Writer.checkFile( currentFile )           ;
                            }
                         }
 
                         if( lines.size() % flushCount == 0 ) {                     
                             Writer.writeTextFile(lines, currentFile ) ;
-                            lines.clear() ;
+                            lines.clear()                             ;
                         }
 
                         res = "" ;
@@ -160,7 +160,7 @@ public class Main {
 
                     if(!lines.isEmpty()) {
                        Writer.writeTextFile(lines,  currentFile) ;
-                       lines.clear() ;                    
+                       lines.clear()                             ;                    
                     }
 
                     /* Delete last file if empty */
@@ -188,9 +188,10 @@ public class Main {
           
           Objects.requireNonNull( path , 
                   " isSubjectURIOrBlank parameter should not be null ") ;
-          if(path.isEmpty()) return false ;
+          if(path.isEmpty()) return false     ;
           
-          String subject = path.split(" ")[0] ;            
+          String subject = path.split(" ")[0] ;  
+          
           if(subject.startsWith("<") && subject.endsWith(">") )   {
               return subject.substring(1, subject.lastIndexOf(">"))
                             .matches(URI_VALIDATOR) ;
@@ -234,7 +235,7 @@ public class Main {
             return query.trim()
                         .replaceAll("\\s+", " ")
                         .toLowerCase()
-                        .contains("select ") ;
+                        .contains("select ")   ;
         }
         
         private static String getCurrentFile(  String outFile , 
@@ -328,12 +329,12 @@ public class Main {
             
             if( owls.isEmpty() || nts.isEmpty() ) {
                  System.out.println(" owl or nt parameter is empty !! " ) ;
-                 return ;
+                 return                                                   ;
             }
             
             if( ( queries.isEmpty() ) ) {
                  System.out.println("  Error nbr parameters !! ") ;
-                 return  ;
+                 return                                           ;
             }
             
             if (   queries.size() != outs.size()      || 
@@ -347,8 +348,8 @@ public class Main {
             }
 
             List<String> entryFiles = new ArrayList<>() ; 
-            entryFiles.addAll(owls) ;
-            entryFiles.addAll(nts)  ;
+            entryFiles.addAll(owls)                     ;
+            entryFiles.addAll(nts)                      ;
             
             /* Load Graph */
             Main instance = Main.getInstance(entryFiles , entailment) ;
