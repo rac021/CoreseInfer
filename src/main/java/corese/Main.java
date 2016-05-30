@@ -20,7 +20,6 @@ import java.io.IOException                               ;
 import java.nio.file.Files                               ;
 import java.nio.file.Paths                               ;
 import java.util.ArrayList                               ;
-import java.util.Objects                                 ;
 import java.util.Arrays                                  ;
 import java.util.List                                    ;
 
@@ -33,10 +32,9 @@ public class Main {
         private static Load         ld  ;
         private static RuleEngine   re  ;
       
-        int flushCount = 10000  ;
+        int flushCount = 10000          ;
         
-        private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
-        private static final List<String> XSD     = Arrays.asList( "string", "integer", "decimal","double", "dateTime", "boolean" )                 ;
+        enum FORMAT { TTL, XML }        ;
         
         private Main(){}
 
@@ -52,7 +50,7 @@ public class Main {
                 return _instance ;
         }
       
-        private static void initialize( List<String> filesToLoad, boolean entailment  ) {
+        private static void initialize( List<String> filesToLoad, boolean entailment ) {
           
             try {
                 g = Graph.create(entailment) ;             
@@ -69,7 +67,7 @@ public class Main {
       private String toStringDataType ( Mapping m, String value ) {
           
            IDatatype dt = (IDatatype) m.getValue(value) ;
-           if(dt == null) return null ;
+           if(dt == null) return null                   ;
            
            dt.intValue()        ;
            dt.doubleValue()     ;
@@ -79,7 +77,7 @@ public class Main {
            dt.getDatatypeURI()  ;
            dt.getLang()         ;
            
-           if(dt.isURI() || dt.isBlank() ) {
+           if(dt.isURI() || dt.isBlank() )   {
              return "<" + dt.getLabel() +">" ;
            }
            return "\"" + dt.getLabel()
@@ -92,8 +90,7 @@ public class Main {
                                     String  outputFile , 
                                     int     fragment   , 
                                     int     numRequest ,
-                                    boolean ilv        ,
-                                    String  format 
+                                    FORMAT  format 
                                   ) throws  IOException  {
               
                 List<String> variables =  getVariables(request)  ;
@@ -106,7 +103,7 @@ public class Main {
                         e.printStackTrace()        ;
                 }
 
-                if(format.equalsIgnoreCase("n3") ) {
+                if( format == FORMAT.TTL ) {
                     
                     List<String> lines = new ArrayList<> () ;
 
@@ -119,7 +116,7 @@ public class Main {
                     currentFile =  getCurrentFile(outputFile, numRequest, fragment , loop ) ;
                     Writer.checkFile( currentFile ) ;
 
-                    for (Mapping m : map) {
+                    for ( Mapping m : map ) {
 
                         for(String variable : variables )              {
                             String dt =  toStringDataType(m, variable) ;
@@ -127,11 +124,8 @@ public class Main {
                             res +=  dt  +  " "                         ;
                         }
                         
-                        /* Ignore literal values */                        
-                        if( !ilv || isSubjectURIOrBlank(res) ) {
-                            count ++                  ;
-                            lines.add( res + " . " )  ;
-                        }
+                        count ++                  ;
+                        lines.add( res + " . " )  ;
 
                         if( fragment != 0 && count % fragment == 0  )   {
                             
@@ -166,7 +160,8 @@ public class Main {
                     } 
                 }
                 
-                else if (format.equalsIgnoreCase("xml") )     {
+                else if (format == FORMAT.XML )               {
+                    
                     Writer.checkFile( outputFile )            ;
                     ResultFormat f = ResultFormat.create(map) ;
                     Writer.writeTextFile ( 
@@ -180,22 +175,7 @@ public class Main {
                    System.out.println(f);
                 */
         }
-        
-        private static boolean isSubjectURIOrBlank( String path )   { 
-          
-          Objects.requireNonNull( path , 
-                  " isSubjectURIOrBlank parameter should not be null ") ;
-          if(path.isEmpty()) return false     ;
-          
-          String subject = path.split(" ")[0] ;  
-          
-          if(subject.startsWith("<") && subject.endsWith(">") )   {
-              return subject.substring(1, subject.lastIndexOf(">"))
-                            .matches(URI_VALIDATOR) ;
-          }
-          return false ;
-        }
-          
+                
         private static List<String> getVariables( String sparqlQuery ) {
         
             List<String> variables = new ArrayList<>() ;
@@ -259,23 +239,6 @@ public class Main {
             }
        } 
         
-        private String getXSDType ( String value ) {
-           
-            if(value.startsWith("<")    && 
-               value.  endsWith(">")    && 
-               value.contains("^^xsd:") &&
-               valideXSD(value.substring(1, value.lastIndexOf(">"))
-                                      .split(Pattern.quote("^^xsd:"))[1]) ) {
-               return "^^xsd:" + value.substring(1, value.lastIndexOf(">"))
-                                      .split(Pattern.quote("^^xsd:"))[1]  ;
-            }
-            return null ;
-        }
-   
-        private boolean valideXSD( String xsd ) {
-            return XSD.contains(xsd);
-        }
-   
         public static void main( String[] args) throws IOException    {
             
             if( args.length < 6 ) {
@@ -284,11 +247,10 @@ public class Main {
             }
             
             List<String> owls         = new ArrayList<>() ;
-            List<String> nts          = new ArrayList<>() ;
+            List<String> ttl          = new ArrayList<>() ;
             List<String> queries      = new ArrayList<>() ;
             List<String> outs         = new ArrayList<>() ;
             List<Integer> fragments   = new ArrayList<>() ;
-            List<String> ilvs         = new ArrayList<>() ;
             List<String> formats      = new ArrayList<>() ;
             boolean entailment        = false             ;
 
@@ -300,7 +262,8 @@ public class Main {
                     
                     case "-owl" :  owls.add(args[i+1])      ;        
                                    break ;
-                    case "-nt"  :  nts.add(args[i+1])       ;
+                    case "-ttl" :  ttl.add(args[i+1]
+                                      .toUpperCase())       ;
                                    break ;
                     case "-out" :  outs.add(args[i+1])      ;
                                    break ;
@@ -310,11 +273,10 @@ public class Main {
                                             .parseInt(
                                               args[i+1]) )  ;
                                    break ;
-                    case "-ilv" :  ilvs.add(args[i+1])      ;
+                    case "-e"   :  entailment = true        ;
                                    break ;
-                    case "-e"   :  entailment = true;       ;
-                                   break ;
-                    case "-F"   :  formats.add(args[i+1])   ;
+                    case "-F"   :  formats.add(args[i+1]
+                                          .toUpperCase())   ;
                                    break ;
                 }
             }
@@ -322,10 +284,10 @@ public class Main {
             System.out.println( " Owls : " )                              ;
             owls.stream().forEach( e -> System.out.println("  " + e ) )   ;
             System.out.println(" nts  : " )                               ;
-            nts.stream().forEach( e ->  System.out.println("  " + e ) )   ;
-            System.out.println( "                                      ") ;
+            ttl.stream().forEach( e ->  System.out.println("  " + e ) )   ;
+            System.out.println( "                                   " )   ;
             
-            if( owls.isEmpty() || nts.isEmpty() ) {
+            if( owls.isEmpty() || ttl.isEmpty() ) {
                  System.out.println(" owl or nt parameter is empty !! " ) ;
                  return                                                   ;
             }
@@ -337,7 +299,6 @@ public class Main {
             
             if (   queries.size() != outs.size()      || 
                  ( queries.size() != fragments.size() || 
-                   queries.size() != ilvs.size()      || 
                    queries.size() != formats.size() )
                )                                       {
                  
@@ -347,7 +308,7 @@ public class Main {
 
             List<String> entryFiles = new ArrayList<>() ; 
             entryFiles.addAll(owls)                     ;
-            entryFiles.addAll(nts)                      ;
+            entryFiles.addAll(ttl)                      ;
             
             /* Load Graph */
             Main instance = Main.getInstance(entryFiles , entailment) ;
@@ -365,21 +326,18 @@ public class Main {
                    System.out.println(" + FRAGMENT        :  " + fragments.get(i))    ;
                    System.out.println(" + Out             :  " + outs.get(i))         ;
               
-                   boolean ilv = ilvs.get(i).toLowerCase().equals("t")                ;
-
                    instance.genericRequest( queries.get(i)   , 
                                             outs.get(i)      ,  
                                             fragments.get(i) ,
                                             i                ,
-                                            ilv              ,
-                                            formats.get(i) ) ; 
+                                            FORMAT.valueOf(formats.get(i)) ) ; 
                    
-                   System.out.println("-------------------------------------------") ;
+                   System.out.println("-------------------------------------------" ) ;
                    
                 }
                 else {
                       System.out.println(queries.get(i) + " \n " +
-                      " Not supported yet. Only Select Queries for the moment !")    ;
+                      " Not supported yet. Only Select Queries for the moment ! " )  ;
                 }
                }
         }
