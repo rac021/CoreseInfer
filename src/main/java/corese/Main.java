@@ -39,7 +39,6 @@ public class Main {
  
         private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
      
-            
         private Main(){}
 
         public static Main getInstance( List<String> filesToLoad, boolean entailment ) {
@@ -84,20 +83,20 @@ public class Main {
            if(dt.isURI() || dt.isBlank() )   {
              return "<" + dt.getLabel() +">" ;
            }
+           
            return "\"" + dt.getLabel()
                            .replaceAll("\"", "'")    + 
                            "\"^^" + dt.getDatatype() ;
       }
       
-      
-      private void genericRequest(  String  request    ,                                     
-                                    String  outputFile , 
-                                    int     fragment   , 
-                                    int     numRequest ,
+      private void genericRequest(  String  request        ,
+                                    List<String> variables ,
+                                    String  outputFile     , 
+                                    int     fragment       , 
+                                    int     numRequest     ,
                                     FORMAT  format 
-                                  ) throws  IOException  {
+                                  ) throws  IOException    {
               
-                List<String> variables =  getVariables(request)  ;
                 QueryProcess exec      =  QueryProcess.create(g) ;
                 Mappings     map       =  null                   ;
                 
@@ -261,7 +260,7 @@ public class Main {
                 if(fragment > 0 ) {
                   return outFile + "." + loop ; }
                 else {
-                  return outFile ; }
+                  return outFile ;              }
             }
        } 
         
@@ -346,18 +345,30 @@ public class Main {
                                           formats.get(i).toLowerCase().
                                           equals(
                                           FORMAT.XML.toString().toLowerCase()) ) )    {
-                     
+                    
+                    List<String> variables = getVariables(queries.get(i) )  ;
+                    FORMAT       format    = FORMAT.valueOf(formats.get(i)) ;
+                    
+                   if( format == FORMAT.TTL && variables.size() != 3 ) {
+                       System.out.print  (" Query must have exactly 3 variables ( subject, predicate, object ) " ) ;
+                       System.out.println(" when Tuttle format is activated (-ttl ) " )                            ;
+                       System.out.println(" See https://www.w3.org/TR/turtle  " )                                  ;
+                       System.out.println(" Or try without -ttl parameter " )                                      ; 
+                       return ;
+                   }
+
                    System.out.println("-------------------------------------------")  ;
                    
                    System.out.println(" + Executing query : "  + queries.get(i) )     ;
                    System.out.println(" + FRAGMENT        :  " + fragments.get(i))    ;
                    System.out.println(" + Out             :  " + outs.get(i))         ;
               
-                   instance.genericRequest( queries.get(i)   , 
+                   instance.genericRequest( queries.get(i)   ,
+                                            variables        ,
                                             outs.get(i)      ,  
                                             fragments.get(i) ,
                                             i                ,
-                                            FORMAT.valueOf(formats.get(i)) ) ; 
+                                            format         ) ; 
                    
                    System.out.println("-------------------------------------------" ) ;
                    
