@@ -118,7 +118,7 @@ public class Main {
                     String currentFile    ;
 
                     currentFile =  getCurrentFile(outputFile, numRequest, fragment , loop ) ;
-                    Writer.checkFile( currentFile ) ;
+                    Writer.checkFile( currentFile )                                         ;
 
                     for ( Mapping m : map ) {
 
