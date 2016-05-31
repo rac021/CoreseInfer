@@ -262,8 +262,7 @@ public class Main {
                     
                     case "-owl" :  owls.add(args[i+1])      ;        
                                    break ;
-                    case "-ttl" :  ttl.add(args[i+1]
-                                      .toUpperCase())       ;
+                    case "-ttl" :  ttl.add(args[i+1]        ;
                                    break ;
                     case "-out" :  outs.add(args[i+1])      ;
                                    break ;
