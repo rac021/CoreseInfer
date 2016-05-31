@@ -339,7 +339,7 @@ public class Main {
             Main instance = Main.getInstance(entryFiles , entailment) ;
             
             /* Travers Queries */
-               for(int i = 0; i< queries.size(); i++ ) {
+               for( int i = 0; i < queries.size() ; i++ ) {
                    
                 if(isSelectQuery(queries.get(i)) || 
                          (! isSelectQuery(queries.get(i)) &&  
