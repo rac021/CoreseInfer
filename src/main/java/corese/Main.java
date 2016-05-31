@@ -148,7 +148,7 @@ public class Main {
                            }
                         }
 
-                        if( lines.size() % flushCount == 0 ) {                     
+                        if( lines.size() % flushCount == 0 )          {                     
                             Writer.writeTextFile(lines, currentFile ) ;
                             lines.clear()                             ;
                         }
@@ -162,7 +162,8 @@ public class Main {
                     }
 
                     /* Delete last file if empty */
-                    if(Files.lines( Paths.get(currentFile)).count() == 0 ) {
+                    if(Files.lines( Paths
+                            .get(currentFile)).count() == 0 )   {
                        Paths.get(currentFile).toFile().delete() ;
                     } 
                 }
