@@ -35,7 +35,7 @@ public class Main {
       
         int flushCount = 10000          ;
  
-        enum FORMAT { TTL, XML }        ;
+        enum FORMAT { TTL, XML , CSV }  ;
  
         private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
      
@@ -106,7 +106,7 @@ public class Main {
                         e.printStackTrace()        ;
                 }
 
-                if( format == FORMAT.TTL ) {
+                if( format == FORMAT.TTL || format == FORMAT.CSV ) {
                     
                     List<String> lines = new ArrayList<> () ;
 
@@ -128,7 +128,7 @@ public class Main {
                         }
                         
                           /* Ignore literal values */                        
-                        if( isSubjectURIOrBlank(res) ) {
+                        if( format == FORMAT.CSV || isSubjectURIOrBlank(res) ) {
                             count ++                   ;
                             lines.add( res + " . " )   ;
                         }
@@ -338,16 +338,21 @@ public class Main {
             Main instance = Main.getInstance(entryFiles , entailment) ;
             
             /* Travers Queries */
-               for( int i = 0; i < queries.size() ; i++ ) {
+               for( int i = 0 ; i < queries.size() ; i++ ) {
                    
-                if(isSelectQuery(queries.get(i)) || 
-                         (! isSelectQuery(queries.get(i)) &&  
-                                          formats.get(i).toLowerCase().
-                                          equals(
-                                          FORMAT.XML.toString().toLowerCase()) ) )    {
-                    
-                    List<String> variables = getVariables(queries.get(i) )  ;
-                    FORMAT       format    = FORMAT.valueOf(formats.get(i)) ;
+                   List<String> variables = getVariables(queries.get(i) )  ;
+                   FORMAT       format    = FORMAT.valueOf(formats.get(i)) ;
+                   String       query     =  queries.get(i)                ;
+                   String       out       = outs.get(i)                    ;
+                   int          fragment  = fragments.get(i)               ;
+                   
+                   if ( isSelectQuery(queries.get(i))                     || 
+                        ( ! isSelectQuery(queries.get(i))                 &&  
+                           ( ! format.toString().toLowerCase().
+                                equals( FORMAT.TTL.toString().toLowerCase())
+                           )
+                        ) 
+                      )                                                    {
                     
                    if( format == FORMAT.TTL && variables.size() != 3 ) {
                        System.out.print  (" Query must have exactly 3 variables ( subject, predicate, object ) " ) ;
@@ -359,9 +364,9 @@ public class Main {
 
                    System.out.println("-------------------------------------------")  ;
                    
-                   System.out.println(" + Executing query : "  + queries.get(i) )     ;
-                   System.out.println(" + FRAGMENT        :  " + fragments.get(i))    ;
-                   System.out.println(" + Out             :  " + outs.get(i))         ;
+                   System.out.println(" + Executing query : "  + query           )    ;
+                   System.out.println(" + FRAGMENT        :  " + fragment        )    ;
+                   System.out.println(" + Out             :  " + out             )    ;
               
                    instance.genericRequest( queries.get(i)   ,
                                             variables        ,
