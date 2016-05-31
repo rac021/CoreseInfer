@@ -22,6 +22,7 @@ import java.nio.file.Paths                               ;
 import java.util.ArrayList                               ;
 import java.util.Arrays                                  ;
 import java.util.List                                    ;
+import java.util.Locale;
 
 
 public class Main {
@@ -283,17 +284,17 @@ public class Main {
             
             System.out.println( " Owls : " )                              ;
             owls.stream().forEach( e -> System.out.println("  " + e ) )   ;
-            System.out.println(" nts  : " )                               ;
+            System.out.println(" ttls  : " )                              ;
             ttl.stream().forEach( e ->  System.out.println("  " + e ) )   ;
             System.out.println( "                                   " )   ;
             
             if( owls.isEmpty() || ttl.isEmpty() ) {
-                 System.out.println(" owl or nt parameter is empty !! " ) ;
+                 System.out.println(" owl or ttl parameter is empty ! " ) ;
                  return                                                   ;
             }
             
             if( ( queries.isEmpty() ) ) {
-                 System.out.println("  Error nbr parameters !! ")         ;
+                 System.out.println("  Error nbr parameters !! " )        ;
                  return                                                   ;
             }
             
@@ -317,8 +318,10 @@ public class Main {
                for(int i = 0; i< queries.size(); i++ ) {
                    
                 if(isSelectQuery(queries.get(i)) || 
-                         (!isSelectQuery(queries.get(i)) &&  
-                                           queries.get(i).equalsIgnoreCase("xml") )) {
+                         (! isSelectQuery(queries.get(i)) &&  
+                                          formats.get(i).toLowerCase().
+                                          equals(
+                                          FORMAT.XML.toString().toLowerCase()) ) )    {
                      
                    System.out.println("-------------------------------------------")  ;
                    
