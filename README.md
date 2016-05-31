@@ -20,7 +20,7 @@ Steps :
     
     - f   : Fragment ( nbr triples by file )  if = 0 no fragmentation. ( Required )
     
-    - F   : output Format ( ttl, xml ). ( Required )
+    - F   : output Format ( ttl, xml, csv ). ( Required )
     
     - e   : enable entailment if "t" , default FALSE. ( not Required ).
     
