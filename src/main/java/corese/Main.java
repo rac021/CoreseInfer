@@ -22,6 +22,7 @@ import java.nio.file.Paths                               ;
 import java.util.ArrayList                               ;
 import java.util.Arrays                                  ;
 import java.util.List                                    ;
+import java.util.Objects;
 
 
 public class Main {
@@ -33,9 +34,12 @@ public class Main {
         private static RuleEngine   re  ;
       
         int flushCount = 10000          ;
-        
+ 
         enum FORMAT { TTL, XML }        ;
-        
+ 
+        private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
+     
+            
         private Main(){}
 
         public static Main getInstance( List<String> filesToLoad, boolean entailment ) {
@@ -124,8 +128,11 @@ public class Main {
                             res +=  dt  +  " "                         ;
                         }
                         
-                        count ++                  ;
-                        lines.add( res + " . " )  ;
+                          /* Ignore literal values */                        
+                        if( isSubjectURIOrBlank(res) ) {
+                            count ++                   ;
+                            lines.add( res + " . " )   ;
+                        }
 
                         if( fragment != 0 && count % fragment == 0  )   {
                             
@@ -175,7 +182,25 @@ public class Main {
                    System.out.println(f);
                 */
         }
-                
+         
+          private static boolean isSubjectURIOrBlank( String path )   { 
+          
+          Objects.requireNonNull( path , 
+                " subject "                              +                 
+                " parameter should not be null " )       ;
+          if(path.isEmpty()) return false                ;
+          
+          String subject = path.split(" ")[0]            ;  
+          
+          if( subject.startsWith("<")  
+              && subject.endsWith(">") )  {
+              return subject.substring(1, 
+                            subject.lastIndexOf(">"))
+                                 .matches(URI_VALIDATOR) ;
+          }
+          return false ;
+        }
+          
         private static List<String> getVariables( String sparqlQuery ) {
         
             List<String> variables = new ArrayList<>() ;
