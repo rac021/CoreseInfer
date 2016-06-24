@@ -72,6 +72,7 @@ public class Main {
            IDatatype dt = (IDatatype) m.getValue(value) ;
            if(dt == null) return null                   ;
            
+           /*
            dt.intValue()        ;
            dt.doubleValue()     ;
            dt.booleanValue()    ;
@@ -79,8 +80,15 @@ public class Main {
            dt.getLabel()        ;
            dt.getDatatypeURI()  ;
            dt.getLang()         ;
+           */
            
-           if(dt.isURI() || dt.isBlank() )   {
+           if ( dt.getLang() != null )     {
+             return "\"" + dt.getLabel()
+                    .replaceAll("\"", "'") 
+                    + "\"@" + dt.getLang() ;
+           }
+           
+           if (dt.isURI() || dt.isBlank() )  {
              return "<" + dt.getLabel() +">" ;
            }
            
@@ -103,7 +111,9 @@ public class Main {
                 try {
                         map = exec.query(request ) ;
                 } catch (EngineException e) {
-                        e.printStackTrace()        ;
+                        System.out.println(" -------- " ) ;
+                          e.printStackTrace()             ;
+                        System.out.println(" -------- " ) ;
                 }
 
                 if( format == FORMAT.TTL || format == FORMAT.CSV ) {
