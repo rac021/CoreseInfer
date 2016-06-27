@@ -138,6 +138,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <overWriteReleases>true</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+	           <overWriteIfNewer>true</overWriteIfNewer>
                 </configuration>
             </plugin>
             <plugin>
