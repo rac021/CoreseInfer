@@ -166,6 +166,7 @@
 		        <goal>copy-resources</goal>
 		      </goals>
 		      <configuration>
+		      	<outputDirectory>src/main/resources</outputDirectory>
 		        <resources>
 		          <resource>
 		            <directory>src/main/resources</directory>
