@@ -123,7 +123,7 @@
     <build>
         <resources>
           <resource>
-              <directory>${basedir}/src/main/resources</directory>
+              <directory>src/main/resources</directory>
               <!-- <filtering>true</filtering>  -->
                <includes>
                   <include>log4j.properties</include>
@@ -138,9 +138,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <overWriteReleases>true</overWriteReleases>
-                    <overWriteSnapshots>true</overWriteSnapshots>
-	           <overWriteIfNewer>true</overWriteIfNewer>
                 </configuration>
             </plugin>
             <plugin>
@@ -156,6 +153,32 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
+            
+            <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-resources-plugin</artifactId>
+		  <version>2.3</version>
+		  <executions>
+		    <execution>
+		      <id>copy-resources</id>
+		      <phase>install</phase>
+		      <goals>
+		        <goal>copy-resources</goal>
+		      </goals>
+		      <configuration>
+		        <resources>
+		          <resource>
+		            <directory>src/main/resources</directory>
+		            <includes>
+		              <include>log4j.properties</include>
+		            </includes>
+		          </resource>
+		        </resources>
+		      </configuration>
+		    </execution>
+		  </executions>
+	    </plugin>
+		
         </plugins>
     </build>
 </project>
