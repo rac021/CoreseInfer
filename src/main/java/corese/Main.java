@@ -59,6 +59,7 @@ public class Main {
                 g = Graph.create(entailment) ;             
                 ld = Load.create(g)  ;
                      for(String file : filesToLoad ) {
+                           System.out.println(" Loadng file : "+file) ;
                            ld.load(file) ;
                 }
             }
