@@ -67,6 +67,7 @@ public class Main {
             }
             catch (Exception ex) {
                   ex.printStackTrace() ;
+                  Throwable[] suppressed = ex.getSuppressed();
                   for(Throwable cause : suppressed ) {
                       System.err.println(cause.getMessage()) ;
                   }
