@@ -56,12 +56,14 @@ public class Main {
         private static void initialize( List<String> filesToLoad, boolean entailment ) {
           
             try {
-                g = Graph.create(entailment) ;             
-                ld = Load.create(g)  ;
-                     for(String file : filesToLoad ) {
-                           System.out.println(" Loading file : "+file) ;
-                           ld.load(file) ;
-                }
+                  g = Graph.create(entailment) ;             
+                  ld = Load.create(g)  ;
+                  for(String file : filesToLoad ) {
+                     System.out.println(" Loading file : "+file) ;
+                     ld.load(file) ;
+                  }
+                  
+                  System.out.println(" ") ;
             }
             catch (Exception ex) {
                     ex.printStackTrace() ;
