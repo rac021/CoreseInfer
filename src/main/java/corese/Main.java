@@ -385,7 +385,9 @@ public class Main {
                    System.out.println(" + Executing query : "  + query           )    ;
                    System.out.println(" + FRAGMENT        :  " + fragment        )    ;
                    System.out.println(" + Out             :  " + out             )    ;
-              
+                 
+                   long startTime = System.currentTimeMillis()                        ;  
+                   
                    instance.genericRequest( queries.get(i)   ,
                                             variables        ,
                                             outs.get(i)      ,  
@@ -394,6 +396,11 @@ public class Main {
                                             format         ) ; 
                    
                    System.out.println("-------------------------------------------" ) ;
+                   
+                   System.out.println(" ")                                            ;
+                   long executionTime = System.currentTimeMillis() - startTime        ;
+                   System.out.println("Elapsed seconds : " + executionTime / 1000 )   ; 
+                   System.out.println(" ")                                            ;
                    
                 }
                 else {
