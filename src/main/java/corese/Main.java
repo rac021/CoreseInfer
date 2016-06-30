@@ -66,7 +66,11 @@ public class Main {
                   System.out.println(" ") ;
             }
             catch (Exception ex) {
-                    ex.printStackTrace() ;
+                  ex.printStackTrace() ;
+                  for(Throwable cause : suppressed ) {
+                      System.err.println(cause.getMessage()) ;
+                  }
+                  System.out.println(" ") ;
             }
         }
 
