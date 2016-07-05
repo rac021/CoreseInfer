@@ -399,7 +399,8 @@ public class Main {
                    
                    System.out.println(" ")                                            ;
                    long executionTime = System.currentTimeMillis() - startTime        ;
-                   System.out.println(" Elapsed seconds : " + executionTime / 1000 )  ; 
+                   System.out.println(" Elapsed seconds : " + 
+                                                        executionTime / 1000 + " s" ) ; 
                    System.out.println(" ")                                            ;
                    
                 }
