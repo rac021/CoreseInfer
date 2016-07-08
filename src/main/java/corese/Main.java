@@ -295,6 +295,7 @@ public class Main {
             List<String> outs         = new ArrayList<>() ;
             List<Integer> fragments   = new ArrayList<>() ;
             List<String> formats      = new ArrayList<>() ;
+            String log                = null              ;
             boolean entailment        = false             ;
 
             for ( int i = 0 ; i < args.length ; i++ ) {
@@ -320,6 +321,9 @@ public class Main {
                     case "-F"   :  formats.add(args[i+1]
                                           .toUpperCase())   ;
                                    break ;
+                    case "-log" :  log = args[i+1]          ;
+                                   break ;
+                                   
                 }
             }
             
@@ -348,10 +352,14 @@ public class Main {
                  return ;
             }
 
-            List<String> entryFiles = new ArrayList<>() ; 
-            entryFiles.addAll(owls)                     ;
-            entryFiles.addAll(ttl)                      ;
+            List<String> entryFiles = new ArrayList<>()  ; 
+            entryFiles.addAll(owls)                      ;
+            entryFiles.addAll(ttl)                       ;
             
+            System.setProperty("log",  
+                    ( log == null || log.isEmpty() ) ? 
+                                "./my_log.logs" : log )  ;
+                    
             /* Load Graph */
             Main instance = Main.getInstance(entryFiles , entailment) ;
             
