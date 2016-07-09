@@ -359,6 +359,8 @@ public class Main {
             System.setProperty("log",  
                     ( log == null || log.isEmpty() ) ? 
                                 "./my_log.logs" : log )  ;
+            
+            long startTime = System.currentTimeMillis()  ;  
                     
             /* Load Graph */
             Main instance = Main.getInstance(entryFiles , entailment) ;
@@ -393,9 +395,7 @@ public class Main {
                    System.out.println(" + Executing query : "  + query           )    ;
                    System.out.println(" + FRAGMENT        :  " + fragment        )    ;
                    System.out.println(" + Out             :  " + out             )    ;
-                 
-                   long startTime = System.currentTimeMillis()                        ;  
-                   
+                  
                    instance.genericRequest( queries.get(i)   ,
                                             variables        ,
                                             outs.get(i)      ,  
