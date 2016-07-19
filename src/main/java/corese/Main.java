@@ -358,7 +358,7 @@ public class Main {
             
             System.setProperty("log",  
                     ( log == null || log.isEmpty() ) ? 
-                                "./my_log.logs" : log )  ;
+                       "coreseLogs/logs.log" : log )  ;
             
             long startTime = System.currentTimeMillis()  ;  
                     
