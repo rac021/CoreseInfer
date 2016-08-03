@@ -6,9 +6,9 @@ inferred triples Generator
 
 Steps : 
 
- 1- `mvn clean install assembly:single `
+ **1-** `mvn clean install assembly:single `
 
- 2- Arguments :
+ **2- Arguments :**
  
     - owl : owl path file.  ( Required if -nt is Empty ) 
     
@@ -24,7 +24,7 @@ Steps :
     
     - e   : enable entailment if "t" , default FALSE. ( not Required ).
     
-  3- Exp :
+  **3- Example :**
   
       java -Xms1024M -Xmx2048M -cp CoreseInferMaven-1.0.0-jar-with-dependencies.jar corese.Main \
       
