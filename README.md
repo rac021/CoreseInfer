@@ -41,11 +41,13 @@ Steps :
            
            SELECT ?uriVariableSynthesis ?measu ?value  {                                        \
            
-           ?uriVariableSynthesis a oboe-core:Observation ;                                      \
+              ?uriVariableSynthesis a oboe-core:Observation ;                                   \
            
-           oboe-core:ofEntity :VariableSynthesis ; oboe-core:hasMeasurement ?measu .            \
+              oboe-core:ofEntity :VariableSynthesis ; oboe-core:hasMeasurement ?measu .         \
            
-           ?measu oboe-core:hasValue ?value . Filter ( regex( ?value, 'ph', 'i')) } "           \
+              ?measu oboe-core:hasValue ?value . Filter ( regex( ?value, 'ph', 'i'))            \
+             
+           } "                                                                                  \
            
            -out out/portail/coreseInferedTriples.ttl -f 0 -F xml                                \
            
