@@ -45,7 +45,9 @@ Steps :
            
               oboe-core:ofEntity :VariableSynthesis ; oboe-core:hasMeasurement ?measu .         \
            
-              ?measu oboe-core:hasValue ?value . Filter ( regex( ?value, 'ph', 'i'))            \
+              ?measu oboe-core:hasValue ?value .                                                \
+              
+              Filter ( regex( ?value, 'ph', 'i'))                                               \
              
            } "                                                                                  \
            
