@@ -29,9 +29,11 @@ Steps :
  ```
 ❯     java -Xms1024M -Xmx2048M -cp CoreseInferMaven-1.0.0-jar-with-dependencies.jar corese.Main \
 
-      -owl root-ontology.owl -ttl pools.rdf -q " SELECT DISTINCT ?S ?P ?O { ?S ?P ?O } "        \
+      -owl ontology.owl  -ttl  data.rdf                                                         \
       
-      -out out/coreseInferedTriples.ttl -f 100000 -F ttl                                        \
+      -q " SELECT DISTINCT ?S ?P ?O { ?S ?P ?O } "                                              \
+      
+      -out out/coreseInferedTriples.ttl  -f  100000  -F  ttl                                    \
       
       -q " PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                                 \
       
@@ -51,7 +53,7 @@ Steps :
              
            } "                                                                                  \
            
-           -out out/portail/coreseInferedTriples.ttl -f 0 -F xml                                \
+      -out out/portail/coreseInferedTriples.ttl  -f  0  -F  xml                                 \
            
       -e
 
