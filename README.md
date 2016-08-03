@@ -22,7 +22,7 @@ Steps :
     
     - F   : output Format ( ttl, xml, csv ). ( Required )
     
-    - e   : enable entailment if "t" , default FALSE. ( not Required ).
+    - e   : enable entailment if "t" , default FALSE. ( not Required )
     
   **3- Example :**
   
