@@ -6,23 +6,28 @@ package corese;
  * @author ryahiaoui
  */
 
-import fr.inria.acacia.corese.exceptions.EngineException ;
-import fr.inria.edelweiss.kgtool.print.ResultFormat      ;
-import fr.inria.edelweiss.kgraph.query.QueryProcess      ;
-import fr.inria.edelweiss.kgraph.rule.RuleEngine         ;
-import fr.inria.edelweiss.kgram.core.Mappings            ;
-import fr.inria.edelweiss.kgram.core.Mapping             ;
-import fr.inria.acacia.corese.api.IDatatype              ;
-import fr.inria.edelweiss.kgraph.core.Graph              ;
-import fr.inria.edelweiss.kgtool.load.Load               ;
-import java.util.regex.Pattern                           ;
+import java.util.List                                    ;
+import java.util.Arrays                                  ;
+import java.util.Objects;
 import java.io.IOException                               ;
 import java.nio.file.Files                               ;
 import java.nio.file.Paths                               ;
 import java.util.ArrayList                               ;
-import java.util.Arrays                                  ;
-import java.util.List                                    ;
-import java.util.Objects;
+import java.util.regex.Pattern                           ;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
+import java.util.stream.Collectors;
+import fr.inria.edelweiss.kgtool.load.Load               ;
+import fr.inria.acacia.corese.api.IDatatype              ;
+import fr.inria.edelweiss.kgraph.core.Graph              ;
+import fr.inria.edelweiss.kgram.core.Mapping             ;
+import fr.inria.edelweiss.kgram.core.Mappings            ;
+import static java.util.stream.Collectors.toList         ;
+import fr.inria.edelweiss.kgraph.rule.RuleEngine         ;
+import fr.inria.edelweiss.kgtool.print.ResultFormat      ;
+import fr.inria.edelweiss.kgraph.query.QueryProcess      ;
+import fr.inria.acacia.corese.exceptions.EngineException ;
 
 
 public class Main {
@@ -32,8 +37,9 @@ public class Main {
         private static Graph        g   ;
         private static Load         ld  ;
         private static RuleEngine   re  ;
-      
-        int flushCount = 10000          ;
+
+        int flushCount   = 300000       ;
+        static int loop  = 0            ;
  
         enum FORMAT { TTL, XML , CSV }  ;
  
@@ -46,7 +52,7 @@ public class Main {
                         synchronized (Main.class) {
                                 if (_instance == null) {
                                         _instance = new Main() ;
-                                        initialize(filesToLoad , entailment) ;
+                                        initialize (filesToLoad , entailment) ;
                                 }
                         }
                 }
@@ -56,14 +62,9 @@ public class Main {
         private static void initialize( List<String> filesToLoad, boolean entailment ) {
           
             try {
-                  g = Graph.create(entailment) ;             
-                  ld = Load.create(g)  ;
-                  for(String file : filesToLoad ) {
-                     System.out.println(" Loading file : "+file) ;
-                     ld.load(file) ;
-                  }
-                  
-                  System.out.println(" ") ;
+                  g  = Graph.create(entailment) ;             
+                  ld = Load.create(g)           ;
+                  loadFiles( filesToLoad  )     ;
             }
             catch (Exception ex) {
                   ex.printStackTrace() ;
@@ -74,8 +75,22 @@ public class Main {
                   System.out.println(" ") ;
             }
         }
+        
+        private static void loadFiles ( List<String> filesToLoad ) {
+           
+            for( String file : filesToLoad   )   {
+                 loadFile( file ) ;
+            }
+        }
+        
+        private static void loadFile ( String fileToLoad ) {
+           
+            System.out.println(" Loading file : " + fileToLoad ) ;
+            ld.load( fileToLoad )   ;
+        }
 
-      private String toStringDataType ( Mapping m, String value ) {
+        
+        private String toStringDataType ( Mapping m, String value ) {
           
            IDatatype dt = (IDatatype) m.getValue(value) ;
            if(dt == null) return null                   ;
@@ -109,6 +124,7 @@ public class Main {
                                     List<String> variables ,
                                     String  outputFile     , 
                                     int     fragment       , 
+                                    int     numBloc        ,
                                     int     numRequest     ,
                                     FORMAT  format 
                                   ) throws  IOException    {
@@ -130,12 +146,16 @@ public class Main {
 
                     String res    = ""    ;
                     int    count  = 0     ;
-                    int    loop   = 0     ;
-
+                   
                     String currentFile    ;
 
-                    currentFile =  getCurrentFile(outputFile, numRequest, fragment , loop ) ;
-                    Writer.checkFile( currentFile )                                         ;
+                    currentFile =  getCurrentFile( outputFile , 
+                                                   numBloc    ,
+                                                   numRequest , 
+                                                   fragment   , 
+                                                   loop     ) ;
+                    
+                    Writer.checkFile( currentFile )           ;
 
                     for ( Mapping m : map ) {
 
@@ -158,6 +178,7 @@ public class Main {
                               Writer.writeTextFile(lines, currentFile ) ;
                               lines.clear();
                               currentFile =  getCurrentFile( outputFile , 
+                                                             numBloc    ,
                                                              numRequest , 
                                                              fragment   ,
                                                              ++loop )   ;                              
@@ -193,6 +214,8 @@ public class Main {
                           Arrays.asList(f.toString()) , 
                                                  outputFile ) ;
                 }
+                
+                loop ++ ;
                 
                 /*
                    print Turtle Result
@@ -260,6 +283,7 @@ public class Main {
         }
         
         private static String getCurrentFile(  String outFile , 
+                                               int numBloc    ,
                                                int numRequest , 
                                                int fragment   ,
                                                int loop )     {
@@ -268,20 +292,55 @@ public class Main {
             }
             if(Files.isDirectory(Paths.get(outFile)) ) {
                   if(outFile.endsWith("/")) {
-                    return outFile+numRequest + "." + loop    ; 
+                    return outFile + numBloc + "." + numRequest + "." + loop      ; 
                   }
                   else {
-                   return outFile+"/"+numRequest + "." + loop ; 
+                   return outFile + "/" + numBloc + "." + numRequest + "." + loop ; 
                   }
             }
             else {
                 if(fragment > 0 ) {
-                  return outFile + "." + loop ; }
+                  return outFile + numBloc + "."  + loop ; }
                 else {
-                  return outFile ;              }
+                  return outFile + numBloc ;               }
             }
-       } 
+        }
         
+        
+        
+        private static List<String> listFiles (String fileOrFolder ) {
+
+            if( ! Files.isDirectory(Paths.get(fileOrFolder))) {
+                  return Arrays.asList(fileOrFolder) ;
+            }
+            try {
+                return  Files.list(Paths.get(fileOrFolder))
+                             .filter(Files::isRegularFile)
+                             .map( f -> f.toAbsolutePath().toString())
+                             .collect(toList()) ;
+            } catch (IOException ex ) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex ) ;
+            }
+            return null ;
+        } 
+
+        
+        private static List<String> listFoldersOrFiles(List<String> ttl ) {
+          return ttl.stream()
+                    .map( Main::listFiles )
+                    .flatMap(List::stream)
+                    .collect(toList()) ;
+        }      
+
+        private static void printStartLine() {
+          System.out.println( " ***************************"
+                              + "************************** " )  ;
+        }
+        private static void printSnakeLine() {
+           System.out.println("----------------------------"
+                              + "----------------------")         ;
+        }
+
         public static void main( String[] args) throws IOException    {
             
             if( args.length < 6 ) {
@@ -297,39 +356,44 @@ public class Main {
             List<String> formats      = new ArrayList<>() ;
             String log                = null              ;
             boolean entailment        = false             ;
+            int peek                  = 0                 ;
+            
 
-            for ( int i = 0 ; i < args.length ; i++ ) {
+            for ( int i = 0 ; i < args.length ; i++ )     {
                 
                 String token = args[i] ;
                 
                 switch(token) {
                     
-                    case "-owl" :  owls.add(args[i+1])      ;        
-                                   break ;
-                    case "-ttl" :  ttl.add(args[i+1])       ;
-                                   break ;
-                    case "-out" :  outs.add(args[i+1])      ;
-                                   break ;
-                    case "-q"   :  queries.add(args[i+1])   ; 
-                                   break ;
-                    case "-f"   :  fragments.add(Integer
-                                            .parseInt(
-                                              args[i+1]) )  ;
-                                   break ;
-                    case "-e"   :  entailment = true        ;
-                                   break ;
-                    case "-F"   :  formats.add(args[i+1]
-                                          .toUpperCase())   ;
-                                   break ;
-                    case "-log" :  log = args[i+1]          ;
-                                   break ;
+                    case "-owl"  :  owls.add(args[i+1])       ;        
+                                    break ;
+                    case "-ttl"  :  ttl.add(args[i+1])        ;
+                                    break ;
+                    case "-out"  :  outs.add(args[i+1])       ;
+                                    break ;
+                    case "-q"    :  queries.add(args[i+1])    ; 
+                                    break ;
+                    case "-f"    :  fragments.add(Integer
+                                             .parseInt(
+                                               args[i+1]) )   ;
+                                    break ;
+                    case "-e"    :  entailment = true         ;
+                                    break ;
+                    case "-F"    :  formats.add(args[i+1]
+                                           .toUpperCase())    ;
+                                     break ;
+                    case "-log"  :  log = args[i+1]           ;
+                                    break ;
+                    case "-peek" :  peek = Integer
+                                         .parseInt(args[i+1]) ;
+                                    break ;
                                    
                 }
             }
             
-            System.out.println( " Owls : " )                              ;
+            System.out.println( " OWLS : " )                              ;
             owls.stream().forEach( e -> System.out.println("  " + e ) )   ;
-            System.out.println(" ttls  : " )                              ;
+            System.out.println(" TTLS  : " )                              ;
             ttl.stream().forEach( e ->  System.out.println("  " + e ) )   ;
             System.out.println( "                                   " )   ;
             
@@ -353,69 +417,94 @@ public class Main {
             }
 
             List<String> entryFiles = new ArrayList<>()  ; 
-            entryFiles.addAll(owls)                      ;
-            entryFiles.addAll(ttl)                       ;
             
-            System.setProperty("log",  
-                    ( log == null || log.isEmpty() ) ? 
-                       "coreseLogs/logs.log" : log )  ;
+            entryFiles.addAll(listFoldersOrFiles(ttl))   ;
+           
+            System.setProperty("log", ( log == null || log.isEmpty() )  ? 
+                                         "coreseLogs/logs.log" : log )  ;
             
             long startTime = System.currentTimeMillis()  ;  
-                    
-            /* Load Graph */
-            Main instance = Main.getInstance(entryFiles , entailment) ;
+           
+            int listSize  = entryFiles.size()                    ;
+            int chunkSize = peek > 0 ? peek : entryFiles.size()  ;
             
-            /* Travers Queries */
-               for( int i = 0 ; i < queries.size() ; i++ ) {
+            List<List<String>> chunkedList = IntStream.range( 0 , ( listSize - 1 ) / peek + 1 )
+                                                      .mapToObj( i -> entryFiles
+                                                      .subList ( i *= chunkSize ,
+                                                                listSize - chunkSize >= i ? i + chunkSize : listSize))
+                                                      .collect(Collectors.toList()) ;
+            
+            int numbBloc = 0 ;
+
+            for( List<String> chunk : chunkedList )                        {
+              
+              printStartLine()          ;     
+              System.out.println( " " ) ;
+                
+              /* Load Graph */
+              Main instance = Main.getInstance( owls , entailment )        ;
+              
+              System.out.println( " --- " )                                ; 
+              loadFiles (chunk )                                           ;
+                
+              /* Travers Queries */
+              for( int numQuery = 0 ; numQuery < queries.size() ; numQuery++ )    {
                    
-                   List<String> variables = getVariables(queries.get(i) )  ;
-                   FORMAT       format    = FORMAT.valueOf(formats.get(i)) ;
-                   String       query     =  queries.get(i)                ;
-                   String       out       = outs.get(i)                    ;
-                   int          fragment  = fragments.get(i)               ;
+                   List<String> variables = getVariables(queries.get(numQuery) )  ;
+                   FORMAT       format    = FORMAT.valueOf(formats.get(numQuery)) ;
+                   String       query     =  queries.get(numQuery)                ;
+                   String       out       = outs.get(numQuery)                    ;
+                   int          fragment  = fragments.get(numQuery)               ;
                    
-                   if ( isSelectQuery(queries.get(i))                     || 
-                        ( ! isSelectQuery(queries.get(i))                 &&  
+                   if ( isSelectQuery(queries.get(numQuery))                     || 
+                        ( ! isSelectQuery(queries.get(numQuery))                 &&  
                            ( ! format.toString().toLowerCase().
                                 equals( FORMAT.TTL.toString().toLowerCase())
                            )
                         ) 
                       )                                                    {
                     
-                   if( format == FORMAT.TTL && variables.size() != 3 ) {
-                       System.out.print  (" Query must have exactly 3 variables ( subject, predicate, object ) " ) ;
-                       System.out.println(" when Tuttle format is activated (-ttl ) " )                            ;
-                       System.out.println(" See https://www.w3.org/TR/turtle  " )                                  ;
-                       System.out.println(" Or try without -ttl parameter " )                                      ; 
-                       return ;
-                   }
+                        if( format == FORMAT.TTL && variables.size() != 3 ) {
+                            System.out.print  (" Query must have exactly 3 variables ( subject, predicate, object ) " ) ;
+                            System.out.println(" when Tuttle format is activated (-ttl ) " )                            ;
+                            System.out.println(" See https://www.w3.org/TR/turtle  " )                                  ;
+                            System.out.println(" Or try without -ttl parameter " )                                      ; 
+                            return ;
+                        }
 
-                   System.out.println("-------------------------------------------")  ;
+                        printSnakeLine() ;
+
+                        System.out.println(" + Executing query :  " + query           )    ;
+                        System.out.println(" + FRAGMENT        :  " + fragment        )    ;
+                        System.out.println(" + Out             :  " + out             )    ;
+
+                        instance.genericRequest( queries.get(numQuery)   ,
+                                                 variables               ,
+                                                 outs.get(numQuery)      ,  
+                                                 fragments.get(numQuery) ,
+                                                 numbBloc ++             ,
+                                                 numQuery                ,
+                                                 format         )        ; 
+
+                   }
+                   else {
+                         System.out.println(queries.get(numQuery) + " \n " +
+                         " Not supported yet. Only Select Queries for the moment ! " )  ;
+                 }
+              }
+              
+              _instance = null        ; 
+              loop      = 0           ;             
+              System.out.println(" ") ;
+              
+            }
+            
+            printStartLine() ;      
+            System.out.println(" ")                                            ;
+            long executionTime = System.currentTimeMillis() - startTime        ;
+            System.out.println(" Elapsed seconds : " + 
+                                                 executionTime / 1000 + " s" ) ; 
+            System.out.println(" ")                                            ;
                    
-                   System.out.println(" + Executing query : "  + query           )    ;
-                   System.out.println(" + FRAGMENT        :  " + fragment        )    ;
-                   System.out.println(" + Out             :  " + out             )    ;
-                  
-                   instance.genericRequest( queries.get(i)   ,
-                                            variables        ,
-                                            outs.get(i)      ,  
-                                            fragments.get(i) ,
-                                            i                ,
-                                            format         ) ; 
-                   
-                   System.out.println("-------------------------------------------" ) ;
-                   
-                   System.out.println(" ")                                            ;
-                   long executionTime = System.currentTimeMillis() - startTime        ;
-                   System.out.println(" Elapsed seconds : " + 
-                                                        executionTime / 1000 + " s" ) ; 
-                   System.out.println(" ")                                            ;
-                   
-                }
-                else {
-                      System.out.println(queries.get(i) + " \n " +
-                      " Not supported yet. Only Select Queries for the moment ! " )  ;
-                }
-               }
         }
 }

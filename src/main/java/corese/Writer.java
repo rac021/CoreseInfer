@@ -24,6 +24,7 @@ public class Writer {
     }
 
     public static void writeTextFile(List<String> strLines, String fileName) throws IOException {
+        System.out.println("fileName **************** " + fileName) ;
     Path path = Paths.get(fileName);
     Files.write(path, strLines, StandardCharsets.UTF_8,  StandardOpenOption.APPEND);
     }
