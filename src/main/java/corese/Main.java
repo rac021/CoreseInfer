@@ -8,7 +8,7 @@ package corese;
 
 import java.util.List                                    ;
 import java.util.Arrays                                  ;
-import java.util.Objects;
+import java.util.Objects                                 ;
 import java.io.IOException                               ;
 import java.nio.file.Files                               ;
 import java.nio.file.Paths                               ;
@@ -50,7 +50,7 @@ public class Main {
                 if (_instance == null) {
                         synchronized (Main.class) {
                                 if (_instance == null) {
-                                        _instance = new Main() ;
+                                        _instance = new Main()                ;
                                         initialize (filesToLoad , entailment) ;
                                 }
                         }
