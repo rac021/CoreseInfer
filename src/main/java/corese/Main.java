@@ -14,10 +14,10 @@ import java.nio.file.Files                               ;
 import java.nio.file.Paths                               ;
 import java.util.ArrayList                               ;
 import java.util.regex.Pattern                           ;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.IntStream;
-import java.util.stream.Collectors;
+import java.util.logging.Level                           ;
+import java.util.logging.Logger                          ;
+import java.util.stream.IntStream                        ;
+import java.util.stream.Collectors                       ;
 import fr.inria.edelweiss.kgtool.load.Load               ;
 import fr.inria.acacia.corese.api.IDatatype              ;
 import fr.inria.edelweiss.kgraph.core.Graph              ;
@@ -38,10 +38,9 @@ public class Main {
         private static Load         ld  ;
         private static RuleEngine   re  ;
 
-        int flushCount   = 300000       ;
-        static int loop  = 0            ;
- 
         enum FORMAT { TTL, XML , CSV }  ;
+ 
+        static int loop  = 0            ;
  
         private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
      
@@ -126,7 +125,8 @@ public class Main {
                                     int     fragment       , 
                                     int     numBloc        ,
                                     int     numRequest     ,
-                                    FORMAT  format 
+                                    FORMAT  format         ,
+                                    int     flushCount
                                   ) throws  IOException    {
               
                 QueryProcess exec      =  QueryProcess.create(g) ;
@@ -357,7 +357,7 @@ public class Main {
             String log                = null              ;
             boolean entailment        = false             ;
             int peek                  = 0                 ;
-            
+            int flushCount            = 10_000            ;
 
             for ( int i = 0 ; i < args.length ; i++ )     {
                 
@@ -365,28 +365,26 @@ public class Main {
                 
                 switch(token) {
                     
-                    case "-owl"  :  owls.add(args[i+1])       ;        
-                                    break ;
-                    case "-ttl"  :  ttl.add(args[i+1])        ;
-                                    break ;
-                    case "-out"  :  outs.add(args[i+1])       ;
-                                    break ;
-                    case "-q"    :  queries.add(args[i+1])    ; 
-                                    break ;
-                    case "-f"    :  fragments.add(Integer
-                                             .parseInt(
-                                               args[i+1]) )   ;
-                                    break ;
-                    case "-e"    :  entailment = true         ;
-                                    break ;
-                    case "-F"    :  formats.add(args[i+1]
-                                           .toUpperCase())    ;
-                                     break ;
-                    case "-log"  :  log = args[i+1]           ;
-                                    break ;
-                    case "-peek" :  peek = Integer
-                                         .parseInt(args[i+1]) ;
-                                    break ;
+                    case "-owl"         : owls.add(args[i+1])                          ;   
+                                          break ;
+                    case "-ttl"         : ttl.add(args[i+1])                           ;
+                                          break ;
+                    case "-out"         : outs.add(args[i+1])                          ;
+                                          break ;
+                    case "-q"           : queries.add(args[i+1])                       ; 
+                                          break ;
+                    case "-f"           : fragments.add(Integer.parseInt( args[i+1]) ) ;
+                                          break ;
+                    case "-e"           : entailment = true                            ;
+                                          break ;
+                    case "-F"           : formats.add(args[i+1].toUpperCase())         ;
+                                          break ;
+                    case "-log"         : log = args[i+1]                              ;
+                                          break ;
+                    case "-peek" :        peek = Integer.parseInt(args[i+1])           ;
+                                          break ;
+                    case "-flushCount" :  flushCount = Integer.parseInt(args[i+1])     ;
+                                          break ;
                                    
                 }
             }
@@ -484,7 +482,8 @@ public class Main {
                                                  fragments.get(numQuery) ,
                                                  numbBloc ++             ,
                                                  numQuery                ,
-                                                 format         )        ; 
+                                                 format                  ,  
+                                                 flushCount )            ; 
 
                    }
                    else {
