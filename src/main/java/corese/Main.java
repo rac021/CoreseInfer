@@ -426,11 +426,16 @@ public class Main {
             int listSize  = entryFiles.size()                    ;
             int chunkSize = peek > 0 ? peek : entryFiles.size()  ;
             
-            List<List<String>> chunkedList = IntStream.range( 0 , ( listSize - 1 ) / peek + 1 )
-                                                      .mapToObj( i -> entryFiles
-                                                      .subList ( i *= chunkSize ,
-                                                                listSize - chunkSize >= i ? i + chunkSize : listSize))
-                                                      .collect(Collectors.toList()) ;
+            List<List<String>> chunkedList = new ArrayList<>()   ;
+            
+            if( chunkSize > 0 ) {
+                
+              chunkedList = IntStream.range( 0 , ( listSize - 1 ) / peek + 1 )
+                                     .mapToObj( i -> entryFiles
+                                     .subList ( i *= chunkSize ,
+                                                listSize - chunkSize >= i ? i + chunkSize : listSize))
+                                     .collect(Collectors.toList()) ;
+            }
             
             int numbBloc = 0 ;
 
