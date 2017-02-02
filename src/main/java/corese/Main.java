@@ -430,7 +430,7 @@ public class Main {
             
             if( chunkSize > 0 ) {
                 
-              chunkedList = IntStream.range( 0 , ( listSize - 1 ) / peek + 1 )
+              chunkedList = IntStream.range( 0 , ( listSize - 1 ) / chunkSize + 1 )
                                      .mapToObj( i -> entryFiles
                                      .subList ( i *= chunkSize ,
                                                 listSize - chunkSize >= i ? i + chunkSize : listSize))
