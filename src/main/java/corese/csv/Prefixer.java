@@ -119,13 +119,13 @@ public class Prefixer {
                        res +=  dt  +  " "                          ;
                    }
                    
-                   if( ! res.isEmpty() ) lines.add(res) ;
+                   if ( ! res.isEmpty() ) lines.add(res) ;
                }
                         
-        } catch (EngineException e )          {
-            System.out.println(" -------- " ) ;
-            e.printStackTrace()               ;
-            System.out.println(" -------- " ) ;
+        } catch ( EngineException e )          {
+             System.out.println ( " -------- " ) ;
+             e.printStackTrace()               ;
+             System.out.println ( " -------- " ) ;
         }
 
        return lines ;
