@@ -247,7 +247,7 @@ public class Prefixer {
             String uri = result.get(0).replace("<", "").replace(">", "").split("#")[0] ;
             String Class = result.get(0).split(" ")[1].split("\\^\\^")[0].replace("\"", "") ;
 
-            String prefix = prefixMap.get("<" + uri + "#>") ;
+            String prefix = prefixMap.get( uri + "#" ) ;
 
             if (prefix == null) {
                 System.out.println(" *** ERROR ") ;
