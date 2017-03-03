@@ -267,8 +267,8 @@ public class Prefixer {
             }
         }
         
-        if(result.isEmpty()) {
-            return EMPTY_RESULT  ;
+        if(result.isEmpty())    {
+            return EMPTY_RESULT ;
         }
          
         if ( result.get(0).split(" ").length >= 2 ) {
