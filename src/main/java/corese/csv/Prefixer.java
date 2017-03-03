@@ -37,22 +37,35 @@ import fr.inria.acacia.corese.exceptions.EngineException ;
 public class Prefixer {
         
     private static final String 
-            
-       sparql =    "  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  \n " +
-                   "  SELECT DISTINCT ?URI ?CLAZZ {                         \n " +
-                   "    ?URI rdfs:label ?LABEL                              \n " +
-                   "    FILTER REGEX( STR(?LABEL), \"^^{0}$\", \"i\")       \n " +
-                   "    BIND ( STRAFTER ( STR(?URI) , \"#\" ) AS ?CLAZZ )   \n " +
-                   " }"  ;
+
+    SPARQL_SEARCH_IN_URI =    "  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  \n " +
+                              "  SELECT DISTINCT ?URI ?SUFFIX {                        \n " +
+                              "   ?URI ?P ?O .                                         \n " +
+                              "   BIND ( STRAFTER ( STR(?URI) , \"#\" ) AS ?SUFFIX ) . \n " +
+                              "   FILTER REGEX( ?SUFFIX , \"^^{0}$\", \"i\" )        . \n " +
+                              " } "  ,
     
-    private static volatile Prefixer _instance = null ;
+    SPARQL_SEARCH_IN_LABEL =  "  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  \n " +
+                              "  SELECT DISTINCT ?URI ?CLAZZ {                         \n " +
+                              "    ?URI rdfs:label ?LABEL                              \n " +
+                              "    FILTER REGEX( STR(?LABEL), \"^^{0}$\", \"i\")       \n " +
+                              "    BIND ( STRAFTER ( STR(?URI) , \"#\" ) AS ?CLAZZ )   \n " +
+                              " } "  ;
+    
+    private static final String EMPTY_RESULT   = "::EMPTY::" ;
+    
+    private static final String NULL_RESULT    = "::NULL::"  ;
+    
+    private static volatile Prefixer _instance =  null       ;
      
     private static Graph        g   ;
     private static Load         ld  ;
     private static RuleEngine   re  ;
 
     private static String getContainedSeparator(String label, List<String> separators) {
-        return separators.stream().filter( string -> label.contains(string)).findFirst().orElse(null);
+        return separators.stream()
+                         .filter( string -> label.contains(string))
+                         .findFirst().orElse("");
 
     }
    
@@ -60,8 +73,6 @@ public class Prefixer {
  
     static int loop  = 0            ;
  
-    private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
-     
     private Prefixer() {}
 
     public static Prefixer getInstance( String fileToLoad, boolean entailment ) {
@@ -85,9 +96,9 @@ public class Prefixer {
          }
          catch (Exception ex) {
                ex.printStackTrace() ;
-               Throwable[] suppressed = ex.getSuppressed();
-               for(Throwable cause : suppressed ) {
-                   System.err.println(cause.getMessage()) ;
+               Throwable[] suppressed = ex.getSuppressed() ;
+               for( Throwable cause : suppressed )  {
+                    System.err.println(cause.getMessage()) ;
                }
                System.out.println(" ") ;
          }
@@ -120,10 +131,10 @@ public class Prefixer {
                        res +=  dt  +  " "                          ;
                    }
                    
-                   if ( ! res.isEmpty() ) lines.add(res)           ;
+                   if ( ! res.isEmpty() ) lines.add(res) ;
                }
                         
-        } catch ( EngineException e )            {
+        } catch ( EngineException e )          {
              System.out.println ( " -------- " ) ;
              e.printStackTrace()               ;
              System.out.println ( " -------- " ) ;
@@ -147,13 +158,13 @@ public class Prefixer {
         dt.getLang()         ;
         */
            
-        if ( dt.getLang() != null )      {
+        if ( dt.getLang() != null )     {
            return "\"" + dt.getLabel()
                   .replaceAll("\"", "'") 
                   + "\"@" + dt.getLang() ;
         }
          
-        if (dt.isURI() || dt.isBlank() )   {
+        if (dt.isURI() || dt.isBlank() )  {
            return "<" + dt.getLabel() +">" ;
         }
            
@@ -212,15 +223,36 @@ public class Prefixer {
        
       return prefixes ;
     }
-        
-    private static String extract( int numLine            ,
-                                   int columnNumber       ,
-                                   Prefixer prefixer      ,
-                                   String sparql          ,
-                                   String variable        ,
-                                   List<String> variables ,
-                                   Map<String, String> prefixMap ) throws Exception {
-
+    
+    private static void printEmptyMessageError( String variable , int numLine, int columnNumber ) {
+        System.out.println("                                                                   " ) ;
+        System.out.println(" *** ERROR                                                         " ) ;
+        System.out.println("     No prefix found for variable : [ " + variable + " ] !         " ) ;
+        System.out.println("     --> At CSV Line : " + numLine  + " // Column " + ++columnNumber ) ;              
+        System.out.println("                                                                   " ) ;
+    }
+    
+    private static void printNullMessageError( String uri , int numLine, int columnNumber ) {
+        System.out.println("                                                                          " ) ;
+        System.out.println(" *** ERROR                                                                " ) ;
+        System.out.println("     No prefix assigned to URI : [ " + uri + " ] in the the prefix File ! " ) ;
+        System.out.println("     --> At CSV Line : " + numLine  + " // Column " + ++columnNumber        ) ;        
+        System.out.println("                                                                          " ) ; 
+    }
+    private static void printExceptionMessage( int numLine, int columnNumber ) {
+        System.out.println("                                                                          " ) ;
+        System.out.println(" *** EXCEPTION                                                            " ) ;
+        System.out.println("     Error Occured during processing                                      " ) ;
+        System.out.println("     --> At CSV Line : " + numLine  + " // Column " + ++columnNumber        ) ;        
+        System.out.println("                                                                          " ) ; 
+    }
+    
+    private static String extract( Prefixer prefixer              ,
+                                   String sparql                  ,
+                                   String variable                ,
+                                   List<String> variables         ,
+                                   Map<String, String> prefixMap  ) throws Exception {
+     
         List<String> result = prefixer.genericRequest( sparql.replace("{0}",variable.trim() ) , variables ) ;
 
         if(result.size() > 1) {
@@ -231,36 +263,25 @@ public class Prefixer {
                 System.out.println(" Multiple Uris found for variable : [ "+ variable + " ] ")    ;
                 collect.forEach( line -> System.err.println( "  - " + line.trim().split(" ")[0])) ;
                 System.out.println(" + Retained --> " + result.get(0).trim().split(" ")[0])       ;
-                System.out.println("                                                          " ) ;
-                return null ;
+                System.out.println("                                                          " ) ;               
             }
         }
         
         if(result.isEmpty()) {
-              System.out.println("                                                                 " ) ;
-              System.out.println(" *** ERROR                                                       " ) ;
-              System.out.println("     No prefix found for variable : [ " + variable + " ] !       " ) ;
-              System.out.println("     --> At CSV Line : " + numLine  + " // Column " + columnNumber ) ;              
-              System.out.println("                                                                 " ) ;
-              return null ;
+            return EMPTY_RESULT  ;
         }
          
         if ( result.get(0).split(" ").length >= 2 ) {
             String uri   = result.get(0).replace("<", "").replace(">", "").split("#")[0] ;
             String Class = result.get(0).split(" ")[1].split("\\^\\^")[0].replace("\"", "") ;
 
-            String prefix = prefixMap.get( uri + "#" ) ;
+            String inputPrefix = prefixMap.get( uri + "#" ) ;
 
-            if (prefix == null) {
-                System.out.println("                                                                          " ) ;
-                System.out.println(" *** ERROR                                                                " ) ;
-                System.out.println("     No prefix assigned to URI : [ " + uri + " ] in the the prefix File ! " ) ;
-                System.out.println("     --> At CSV Line : " + numLine  + " // Column " + columnNumber          ) ;        
-                System.out.println("                                                                          " ) ;
-                return null ;
+            if (inputPrefix == null) {
+                return NULL_RESULT + uri ;
             }
 
-            return prefix + Class ;
+            return inputPrefix + Class ;
         } else 
         {
             System.out.println(" + Query must Have Only Two VARIABLES ") ;
@@ -271,48 +292,24 @@ public class Prefixer {
         throw new IllegalArgumentException(" Error while extracting Prefix:Class for variable -> "+ variable ) ;
     }
      
-    private static String treatLabels( int                 numLine          ,
-                                       int                 columnNumber     ,
-                                       Prefixer            prefixer         ,
-                                       String              sparql           ,
-                                       List<String>        labels           ,
-                                       List<String>        sparqlVariables  , 
-                                       Map<String, String> prefixMap        ,
-                                       String              parser        )  {
-       return labels.stream()
-                    .map( label -> treatLabel( numLine           ,
-                                               columnNumber      ,
-                                               prefixer          , 
-                                               sparql            , 
-                                               label             , 
-                                               sparqlVariables   , 
-                                               prefixMap)        )
-                    .collect( Collectors.joining(parser + " " )) ;
-    }
-    
-    private static String treatLabel(  int                 numLine          ,
-                                       int                 columnNumber     ,
-                                       Prefixer            prefixer         ,
-                                       String              sparql           ,
-                                       String              label            ,
-                                       List<String>        sparqlVariables  , 
-                                       Map<String, String> prefixMap     )  {
+    private static String treatLabel( Prefixer            prefixer         ,
+                                      String              sparql           ,
+                                      String              label            ,
+                                      List<String>        sparqlVariables  , 
+                                      Map<String, String> prefixMap     )  {
         try {
-            return  extract( numLine         ,
-                             columnNumber    ,
-                             prefixer        ,
+            return  extract( prefixer        ,
                              sparql          ,                               
                              label           ,
                              sparqlVariables ,
-                             prefixMap )     ;
+                             prefixMap     ) ;
             
         } catch( Exception ex ) {
             ex.printStackTrace();
         }
         return null ;
     }
-    
-    
+        
     /* ENTRY MAIN */ 
     public static void main(String[] args) throws IOException, Exception  {
 
@@ -388,13 +385,13 @@ public class Prefixer {
                                     "coreseLogs/logs.log" : log )  ;
           
         String _csv_separator =  csv_separator ;
-        String currentSparql  ;
+        String currentSparql   ;
         
         if(queryFile != null ) {
            currentSparql = readFile(queryFile) ;
         }
         else {
-           currentSparql = sparql     ;
+           currentSparql = SPARQL_SEARCH_IN_URI ;
         }
         
         Writer.deleteFile(outCsvFile) ;
@@ -430,29 +427,82 @@ public class Prefixer {
                           String parser = getContainedSeparator( column, separators ) ;
 
                           if( parser != null && ! parser.isEmpty() ) {
+                                                            
+                              String[] subColumnVariables = column.split(parser) ;
                               
-                              String treatLabels = treatLabels( numLine               ,
-                                                                columnNumber          ,
-                                                                prefixer              ,
-                                                                currentSparql         ,
-                                                                Arrays.asList(column
-                                                                      .split(parser)) ,
-                                                                sparqlVariables       ,
-                                                                prefixMap             ,
-                                                                parser
-                              ) ;                                      
-                              treatedColumns.put(  columnNumber , treatLabels ) ;
-                          }
+                              for( String var : subColumnVariables ) {
+                               
+                                  String treatLabel = treatLabel( prefixer                 ,
+                                                                  currentSparql            ,
+                                                                  var.replaceAll(" +", "") ,
+                                                                  sparqlVariables          ,
+                                                                  prefixMap      )         ; 
+                                  if( treatLabel == null              ||
+                                      treatLabel.equals(EMPTY_RESULT) ||
+                                      treatLabel.startsWith(NULL_RESULT)) {
+                                  
+                                        List<String> sparqlVars   = getVariables( SPARQL_SEARCH_IN_LABEL ) ;
+
+                                         treatLabel = treatLabel( prefixer                 ,
+                                                                  SPARQL_SEARCH_IN_LABEL   ,
+                                                                  var.replaceAll(" +", "") ,
+                                                                  sparqlVars               ,
+                                                                  prefixMap      )         ; 
+
+                                         if( treatLabel == null ) {
+                                             printExceptionMessage(numLine, columnNumber)  ;
+                                         }
+                                         else if ( treatLabel.equals(EMPTY_RESULT)) {
+                                             printEmptyMessageError(var, numLine, columnNumber ) ;
+                                         }
+                                         else  if ( treatLabel.equals(NULL_RESULT)) {
+                                             printNullMessageError( treatLabel.replace( NULL_RESULT, "") ,
+                                                                    numLine, columnNumber) ;
+                                         }
+                                         else {
+                                             treatedColumns.put(  columnNumber , treatLabel )  ;
+                                         }
+                                  }
+                                  else 
+                                        treatedColumns.put(  columnNumber , treatLabel ) ;                              
+                             }
+                          } 
+                          
                           else {
 
-                              String treatLabel = treatLabel( numLine          ,
-                                                              columnNumber     ,
-                                                              prefixer         ,
+                              String treatLabel = treatLabel( prefixer         ,
                                                               currentSparql    ,
-                                                              column           ,
-                                                              sparqlVariables  ,
-                                                              prefixMap
-                                                            ) ;                         
+                                                              column.replaceAll(" +", "") ,
+                                                              sparqlVariables             ,
+                                                              prefixMap      )            ; 
+                              
+                              if( treatLabel == null             ||
+                                  treatLabel.equals(EMPTY_RESULT) ||
+                                  treatLabel.startsWith(NULL_RESULT)) {
+                                  
+                                  List<String> sparqlVars   = getVariables( SPARQL_SEARCH_IN_LABEL ) ;
+                                  
+                                  treatLabel = treatLabel( prefixer               ,
+                                                           SPARQL_SEARCH_IN_LABEL ,
+                                                           column                 ,
+                                                           sparqlVars             ,
+                                                           prefixMap              
+                                  ) ;  
+                                                            
+                                  if( treatLabel == null ) {
+                                      printExceptionMessage(numLine, columnNumber)  ;
+                                  }
+                                  else if ( treatLabel.equals(EMPTY_RESULT)) {
+                                      printEmptyMessageError(column, numLine, columnNumber ) ;
+                                  }
+                                  else  if ( treatLabel.equals(NULL_RESULT)) {
+                                      printNullMessageError( treatLabel.replace(NULL_RESULT, "") ,
+                                                             numLine, columnNumber) ;
+                                  }
+                                  else {
+                                     treatedColumns.put(  columnNumber , treatLabel )  ;
+                                  }
+                              }
                               treatedColumns.put( columnNumber , treatLabel ) ;                      
                           }
                           
