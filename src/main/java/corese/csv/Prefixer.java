@@ -272,7 +272,7 @@ public class Prefixer {
         }
          
         if ( result.get(0).split(" ").length >= 2 ) {
-            String uri   = result.get(0).replace("<", "").replace(">", "").split("#")[0] ;
+            String uri   = result.get(0).replace("<", "").replace(">", "").split("#")[0]    ;
             String Class = result.get(0).split(" ")[1].split("\\^\\^")[0].replace("\"", "") ;
 
             String inputPrefix = prefixMap.get( uri + "#" ) ;
