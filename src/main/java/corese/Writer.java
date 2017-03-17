@@ -51,7 +51,7 @@ public class Writer {
        Files.createDirectory(path)                                       ;
     }
     
-    private static void deleteFile( String path ) throws IOException {
+    public static void deleteFile ( String path ) throws IOException {
       Path pat = Paths.get(path)                                     ;
       if(Files.exists(pat) )   {
           Files.delete(pat)                                          ;
