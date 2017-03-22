@@ -463,8 +463,11 @@ public class Prefixer {
                                              treatedColumns.put(  columnNumber , treatLabel )  ;
                                          }
                                   }
-                                  else 
-                                        treatedColumns.put(  columnNumber , treatLabel ) ;                              
+                                  else {
+                                        final String lm = treatLabel ;
+                                        treatedColumns.computeIfPresent(columnNumber, (k,v ) -> v + " " + parser + " " + lm ) ;
+                                        treatedColumns.computeIfAbsent( columnNumber , key -> lm )                            ;
+                                  }
                              }
                           } 
                           
