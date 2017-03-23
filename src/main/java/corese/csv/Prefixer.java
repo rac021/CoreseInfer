@@ -459,9 +459,9 @@ public class Prefixer {
                                              printNullMessageError( treatLabel.replace( NULL_RESULT, "") ,
                                                                     numLine, columnNumber) ;
                                          }
-                                         else {
-                                             treatedColumns.put(  columnNumber , treatLabel )  ;
-                                         }
+                                        
+                                         treatedColumns.put(  columnNumber , null )  ;
+                                         
                                   }
                                   else {
                                         final String lm = treatLabel ;
@@ -479,7 +479,7 @@ public class Prefixer {
                                                               sparqlVariables             ,
                                                               prefixMap      )            ; 
                               
-                              if( treatLabel == null             ||
+                              if( treatLabel == null              ||
                                   treatLabel.equals(EMPTY_RESULT) ||
                                   treatLabel.startsWith(NULL_RESULT)) {
                                   
@@ -502,11 +502,13 @@ public class Prefixer {
                                       printNullMessageError( treatLabel.replace(NULL_RESULT, "") ,
                                                              numLine, columnNumber) ;
                                   }
-                                  else {
-                                     treatedColumns.put(  columnNumber , treatLabel )  ;
-                                  }
+                                  
+                                  treatedColumns.put(  columnNumber , null )  ;                                  
                               }
-                              treatedColumns.put( columnNumber , treatLabel ) ;                      
+                              else {
+                                  treatedColumns.put( columnNumber , treatLabel ) ;
+                              }
+                              
                           }
                           
                       } catch (Exception ex) {
