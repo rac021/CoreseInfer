@@ -424,6 +424,10 @@ public class Prefixer {
 
                           String column =  line.replaceAll(" +", " " )
                                                .split(_csv_separator)[columnNumber]   ;
+                            
+                          /* Ingore EMpty Columns -> Valide */
+                          if( column.isEmpty()) return  ;
+                              
                           String parser = getContainedSeparator( column, separators ) ;
 
                           if( parser != null && ! parser.isEmpty() ) {
