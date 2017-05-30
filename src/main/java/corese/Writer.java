@@ -62,4 +62,9 @@ public class Writer {
         File file = new File(path)                                   ;
         file.createNewFile()                                         ;
     }
+    
+    public static boolean existFile( String path ) throws IOException {
+        File file = new File(path)                                    ;
+        return file.exists()                                          ;
+    }
 }

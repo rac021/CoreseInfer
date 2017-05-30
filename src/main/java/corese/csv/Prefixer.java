@@ -106,8 +106,8 @@ public class Prefixer {
  
     private static void loadFile ( String fileToLoad )       {
         System.out.println("                              ") ;
-        System.out.println(" Loading file : " + fileToLoad ) ;
-        ld.load( fileToLoad )   ;
+        System.out.println(" Loading file : " + fileToLoad ) ;       
+        ld.load( fileToLoad )                                ;        
     }
 
     
@@ -209,7 +209,7 @@ public class Prefixer {
         return new String(Files.readAllBytes(Paths.get(path)));
     }
     
-    private static Map<String, String> getPrefixes(String prefixFile) throws IOException {
+    private static Map<String, String> getPrefixes(String prefixFile ) throws IOException {
       
       Map<String, String > prefixes = new HashMap<>();
         
@@ -219,7 +219,13 @@ public class Prefixer {
                 String[] splited = line.trim().replaceAll(" + ", " ").split(" ") ;
                 prefixes.put(splited[2], splited[1]) ;
             }) ;
-      }
+      } catch( Exception ex ) {
+           System.out.println(" ")                     ;
+           System.out.println(" *** ERROR          " ) ;
+           System.out.println(       ex.getMessage() ) ;
+           System.out.println(" ")                     ;
+           System.exit(0)                              ;
+        } 
        
       return prefixes ;
     }
@@ -245,6 +251,15 @@ public class Prefixer {
         System.out.println("     Error Occured during processing                                      " ) ;
         System.out.println("     --> At CSV Line : " + numLine  + " // Column " + ++columnNumber        ) ;        
         System.out.println("                                                                          " ) ; 
+    }
+    
+    private static void printFileNotFoundExceptionAndExit( String path )                                  {
+        System.out.println("                                                                          " ) ;
+        System.out.println(" *** EXCEPTION                                                            " ) ;
+        System.out.println("     Error Occured during processing                                      " ) ;
+        System.out.println("     --> The File : [ " + path + " ] doesn't exist !                      " ) ;  
+        System.out.println("                                                                          " ) ; 
+        System.exit(0)                                                                                    ;
     }
     
     private static String extract( Prefixer prefixer              ,
@@ -365,25 +380,41 @@ public class Prefixer {
             }
         }
 
-       Objects.requireNonNull(ontologyFile)  ;
-       Objects.requireNonNull(inCsvFile)     ;
-       Objects.requireNonNull(outCsvFile)    ;
-       Objects.requireNonNull(prefixFile)    ;
-       Objects.requireNonNull(csv_separator) ;
+        Objects.requireNonNull(ontologyFile)  ;
+        Objects.requireNonNull(inCsvFile)     ;
+        Objects.requireNonNull(outCsvFile)    ;
+        Objects.requireNonNull(prefixFile)    ;
+        Objects.requireNonNull(csv_separator) ;
        
-       System.out.println(" -------------------------- "     ) ;
-       System.out.println(" + Info : "                       ) ;
-       System.out.println("   Ontology    : " + ontologyFile ) ;
-       System.out.println("   CSV         : " + inCsvFile    ) ;
-       System.out.println("   CSV OUT     : " + outCsvFile   ) ;
-       System.out.println("   Prefix File : " + prefixFile   ) ;
-       System.out.println("   CSV_SEP     : " + csv_separator) ;
-       System.out.println("   Separators  : " + separators   ) ;
-       System.out.println(" -------------------------- "     ) ;
+        System.out.println(" -------------------------- "     ) ;
+        System.out.println(" + Info : "                       ) ;
+        System.out.println("   Ontology    : " + ontologyFile ) ;
+        System.out.println("   CSV         : " + inCsvFile    ) ;
+        System.out.println("   CSV OUT     : " + outCsvFile   ) ;
+        System.out.println("   Prefix File : " + prefixFile   ) ;
+        System.out.println("   CSV_SEP     : " + csv_separator) ;
+        System.out.println("   Separators  : " + separators   ) ;
+        System.out.println(" -------------------------- "     ) ;
  
+        
+        if( ! Writer.existFile( ontologyFile ) ) {
+            printFileNotFoundExceptionAndExit(ontologyFile) ;
+        }
+        
+        if( ! Writer.existFile( inCsvFile ) ) {
+            printFileNotFoundExceptionAndExit(inCsvFile) ;
+        }
+        if( ! Writer.existFile( prefixFile ) ) {
+            printFileNotFoundExceptionAndExit(prefixFile) ;
+        }
+        
+        if( ! Writer.existFile( inCsvFile ) ) {
+            printFileNotFoundExceptionAndExit(inCsvFile) ;
+        }
+        
         System.setProperty("log", ( log == null || log.isEmpty() ) ? 
                                     "coreseLogs/logs.log" : log )  ;
-          
+         
         String _csv_separator =  csv_separator ;
         String currentSparql   ;
         
@@ -395,6 +426,7 @@ public class Prefixer {
         }
         
         Writer.deleteFile(outCsvFile) ;
+        
         /* Load Graph */
          
         Prefixer prefixer = getInstance( ontologyFile , true )         ;
@@ -425,7 +457,7 @@ public class Prefixer {
                           String column =  line.replaceAll(" +", " " )
                                                .split(_csv_separator)[columnNumber]   ;
                             
-                          /* Ingore EMpty Columns -> Valide */
+                          /* Ingore Empty Columns -> Valide */
                           if( column.isEmpty()) return  ;
                               
                           String parser = getContainedSeparator( column, separators ) ;
