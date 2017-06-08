@@ -487,6 +487,7 @@ public class Prefixer {
 
                                          if( treatLabel == null ) {
                                              printExceptionMessage(numLine, columnNumber)  ;
+                                             treatedColumns.put(  columnNumber , null )    ;
                                          }
                                          else if ( treatLabel.equals(EMPTY_RESULT)) {
                                              printEmptyMessageError(var, numLine, columnNumber ) ;
@@ -494,10 +495,11 @@ public class Prefixer {
                                          else  if ( treatLabel.equals(NULL_RESULT)) {
                                              printNullMessageError( treatLabel.replace( NULL_RESULT, "") ,
                                                                     numLine, columnNumber) ;
+                                         } else {
+                                             final String lm = treatLabel ;
+                                             treatedColumns.computeIfPresent(columnNumber, (k,v ) -> v + " " + parser + " " + lm ) ;
+                                             treatedColumns.computeIfAbsent( columnNumber , key -> lm )                            ;  
                                          }
-                                        
-                                         treatedColumns.put(  columnNumber , null )  ;
-                                         
                                   }
                                   else {
                                         final String lm = treatLabel ;
@@ -515,9 +517,9 @@ public class Prefixer {
                                                               sparqlVariables             ,
                                                               prefixMap      )            ; 
                               
-                              if( treatLabel == null              ||
-                                  treatLabel.equals(EMPTY_RESULT) ||
-                                  treatLabel.startsWith(NULL_RESULT)) {
+                              if ( treatLabel == null              ||
+                                   treatLabel.equals(EMPTY_RESULT) ||
+                                   treatLabel.startsWith(NULL_RESULT)) {
                                   
                                   List<String> sparqlVars   = getVariables( SPARQL_SEARCH_IN_LABEL ) ;
                                   
@@ -528,8 +530,9 @@ public class Prefixer {
                                                            prefixMap              
                                   ) ;  
                                                             
-                                  if( treatLabel == null ) {
+                                  if ( treatLabel == null ) {
                                       printExceptionMessage(numLine, columnNumber)  ;
+                                      treatedColumns.put(  columnNumber , null )    ; 
                                   }
                                   else if ( treatLabel.equals(EMPTY_RESULT)) {
                                       printEmptyMessageError(column, numLine, columnNumber ) ;
@@ -537,9 +540,9 @@ public class Prefixer {
                                   else  if ( treatLabel.equals(NULL_RESULT)) {
                                       printNullMessageError( treatLabel.replace(NULL_RESULT, "") ,
                                                              numLine, columnNumber) ;
-                                  }
-                                  
-                                  treatedColumns.put(  columnNumber , null )  ;                                  
+                                  } else {
+                                      treatedColumns.put( columnNumber , treatLabel ) ;       
+                                  }                         
                               }
                               else {
                                   treatedColumns.put( columnNumber , treatLabel ) ;
