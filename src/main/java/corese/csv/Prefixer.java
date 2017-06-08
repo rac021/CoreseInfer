@@ -512,14 +512,14 @@ public class Prefixer {
                                              final String lm = treatLabel ;
                                              treatedColumns.computeIfPresent( columnNumber, 
                                                                               (k,v ) -> v + " " + parser + " " + lm ) ;
-                                             treatedColumns.computeIfAbsent( columnNumber , key -> lm )                            ;  
+                                             treatedColumns.computeIfAbsent( columnNumber , key -> lm )               ;  
                                          }
                                   }
                                   else {
                                         final String lm = treatLabel ;
                                         treatedColumns.computeIfPresent( columnNumber, 
                                                                         (k,v ) -> v + " " + parser + " " + lm ) ;
-                                        treatedColumns.computeIfAbsent( columnNumber , key -> lm )                            ;
+                                        treatedColumns.computeIfAbsent( columnNumber , key -> lm )              ;
                                   }
                              }
                           } 
