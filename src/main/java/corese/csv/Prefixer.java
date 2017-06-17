@@ -570,10 +570,12 @@ public class Prefixer {
                                                                    return treatedColumns.get(i) != null ? 
                                                                    treatedColumns.get(i) : splited[i]   ;
                                                             })
-                                                  .collect(Collectors.joining(_csv_separator)) ;
+                                                      .collect(Collectors.joining(_csv_separator))      ;
                         collectedLines.add(collectLine) ;
-                        numLine ++                      ;
                     }
+                   
+                   numLine ++ ;
+                          
                   }                                    
                 }) ;
        }
