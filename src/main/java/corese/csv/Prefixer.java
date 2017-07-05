@@ -39,14 +39,14 @@ public class Prefixer {
     private static final String 
 
     SPARQL_SEARCH_IN_URI =    "  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  \n " +
-                              "  SELECT DISTINCT ?URI ?SUFFIX {                        \n " +
+                              "  SELECT DISTINCT ?URI ?SUFFIX WHERE {                  \n " +
                               "   ?URI ?P ?O .                                         \n " +
                               "   BIND ( STRAFTER ( STR(?URI) , \"#\" ) AS ?SUFFIX ) . \n " +
                               "   FILTER REGEX( ?SUFFIX , \"^^{0}$\", \"i\" )        . \n " +
                               " } "  ,
     
     SPARQL_SEARCH_IN_LABEL =  "  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  \n " +
-                              "  SELECT DISTINCT ?URI ?CLAZZ {                         \n " +
+                              "  SELECT DISTINCT ?URI ?CLAZZ WHERE {                   \n " +
                               "    ?URI rdfs:label ?LABEL                              \n " +
                               "    FILTER REGEX( STR(?LABEL), \"^^{0}$\", \"i\")       \n " +
                               "    BIND ( STRAFTER ( STR(?URI) , \"#\" ) AS ?CLAZZ )   \n " +
@@ -92,7 +92,7 @@ public class Prefixer {
         try {
               g  = Graph.create(entailment) ;             
               ld = Load.create(g)           ;
-              loadFile( fileToLoad  )     ;
+              loadFile( fileToLoad  )       ;
          }
          catch (Exception ex) {
                ex.printStackTrace() ;
@@ -199,7 +199,7 @@ public class Prefixer {
                  variables.add(token)       ;
            }
                
-           else if( token.equalsIgnoreCase("where") ) break ;
+           else if( token.equalsIgnoreCase("WHERE") ) break ;
         }
             
        return variables ;
