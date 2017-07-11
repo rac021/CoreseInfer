@@ -32,6 +32,23 @@ import fr.inria.acacia.corese.exceptions.EngineException ;
 /**
  *
  * @author ryahiaoui
+*/
+
+/**
+ * Exemple :
+ * -columnFormulaNum 13 
+ * -ontologiesLocation "/si/ontology/" 
+ * -csv       "/si/csv/my_si.csv" 
+ * -outCsv    "/si/csv/pipeline_si.csv" 
+ * -csv_sep   ";"  
+ * -separator ","  
+ * -separator "/"  
+ * -column    "0"
+ * -column    "1"
+ * -column    "2"
+ * @ --- 
+ * Syntaxe Formula ( in the CSV ) :
+ *  col_num_x [ Taxref , Sandre] /  col_num_y [ Sandre ]
  */
 
 public class CustomPrefixer {
