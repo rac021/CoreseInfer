@@ -228,6 +228,7 @@ public class CustomPrefixer {
         System.out.println("     --> At CSV Line : " + numLine  + " // Column " + +columnNumber         ) ;        
         System.out.println("                                                                          " ) ; 
     }
+        
     private static void printExceptionMessage( int numLine, int columnNumber ) {
         System.out.println("                                                                          " ) ;
         System.out.println(" *** EXCEPTION                                                            " ) ;
