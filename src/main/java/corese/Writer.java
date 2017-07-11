@@ -72,4 +72,32 @@ public class Writer {
         File file = new File(path)                                    ;
         return file.exists() && file.isDirectory()                    ;
     }
+    
+    public static void checkNotEmptyDirectory(String directory) throws IOException {
+      
+       long count = Files.list(Paths.get(directory))
+                         .filter(p -> p.toFile().isFile())                    
+                         .count() ;
+           
+        if( count == 0 ) {
+             throw new IllegalArgumentException( " No file found in the derectory ; " + directory ) ;
+        }
+    }
+    
+    public static String checkAndBuildDirectoryPath( String basePath , String directoryName ) throws IOException {
+               
+       String path = Files.list(Paths.get(basePath ))
+                          .filter(p -> p.toFile().isDirectory())                    
+                          .filter(p -> p.toAbsolutePath().toString()
+                                        .equalsIgnoreCase(basePath + File.separator + directoryName ))
+                          .map(p -> p.toAbsolutePath().toString())
+                          .findFirst()
+                          .orElse(null) ;
+           
+        if( path == null ) {
+             throw new IllegalArgumentException( " No file found in the derectory ; " + directoryName ) ;
+        }
+        
+        return path  ;
+    }
 }
