@@ -28,6 +28,9 @@ import java.util.stream.Collectors ;
  *  -filter     "year:1900-null-close"
  *  -filter     "site:paris, Nancy"
  *  @
+ *  SPARQL QUERY :
+ *   - One variable per LINE in the SELECT QUERY
+ *   - One variable per LINE in the GROUP BY
  */
 
 public class SparqlTemplate {
