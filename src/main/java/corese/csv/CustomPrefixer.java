@@ -603,26 +603,26 @@ public class CustomPrefixer {
                                                               .distinct()
                                                               .collect(Collectors.toList()) ;
       
-                    treatColumn( ontologies                     ,
-                                 treatedColumns                 , 
-                                 numLine                        , 
-                                 columnNum                      , 
-                                 line                           ,
-                                 _csv_separator                 ,
-                                 separators                     , 
-                                 _ontologiesLocation            ) ;
+                    treatColumn ( ontologies            ,
+                                  treatedColumns        , 
+                                  numLine               , 
+                                  columnNum             , 
+                                  line                  ,
+                                  _csv_separator        ,
+                                  separators            , 
+                                  _ontologiesLocation ) ;
                  }) ;
                 
                  String[] splited = line.replaceAll(" +", " " ).split(_csv_separator) ;
                     
                  if( ! treatedColumns.values().contains(null) ) {
                  
-                     String collectLine = IntStream.range(0, splited.length)
+                     String collectLine = IntStream.range(0, splited.length )
                                                    .mapToObj( i ->   { 
                                                                 return treatedColumns.get(i) != null ? 
                                                                 treatedColumns.get(i) : splited[i]   ;
                                                     })
-                                                      .collect(Collectors.joining(_csv_separator))    ;
+                                                      .collect(Collectors.joining(_csv_separator))   ;
                      collectedLines.add(collectLine) ;
                  }
                     
