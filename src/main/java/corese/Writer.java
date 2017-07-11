@@ -67,4 +67,9 @@ public class Writer {
         File file = new File(path)                                    ;
         return file.exists()                                          ;
     }
+    
+    public static boolean existDirectory( String path ) throws IOException {
+        File file = new File(path)                                    ;
+        return file.exists() && file.isDirectory()                    ;
+    }
 }
