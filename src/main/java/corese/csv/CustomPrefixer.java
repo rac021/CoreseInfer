@@ -46,6 +46,7 @@ import fr.inria.acacia.corese.exceptions.EngineException ;
  * @ --- 
  * Syntaxe Formula ( in the CSV ) :
  *  col_num_x [ Taxref , Sandre] /  col_num_y [ Sandre ]
+ * TaxRef & Sandre are folders located in ontologiesLocation
  */
 
 public class CustomPrefixer {
