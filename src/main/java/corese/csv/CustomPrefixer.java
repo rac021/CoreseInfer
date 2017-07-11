@@ -611,9 +611,8 @@ public class CustomPrefixer {
                      collectedLines.add(collectLine) ;
                  }
                     
-               numLine ++ ;
-                          
-              }                                    
+               numLine ++ ;                          
+              }                       
 
             }) ;
        }
