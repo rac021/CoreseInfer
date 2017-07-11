@@ -73,8 +73,7 @@ public class CustomPrefixer {
       
     private static void loadAndSaveOntology ( String directory   ,
                                               String namespace   ,
-                                              boolean entailment ) {
-          
+                                              boolean entailment ) {          
         try {
               if( ontologies.containsKey(namespace)) return            ;
               Graph g = Graph.create(entailment)                       ;    
