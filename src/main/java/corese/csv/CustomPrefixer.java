@@ -198,7 +198,6 @@ public class CustomPrefixer {
             
        return variables ;
     }
-
   
     private static void printEmptyMessageError( String variable , int numLine, int columnNumber ) {
         System.out.println("                                                                   " ) ;
@@ -298,7 +297,7 @@ public class CustomPrefixer {
                                      int numLine         , 
                                      int columnNumber )  {
         
-       if( result == null ) {
+       if( result == null )   {
            if( displayError ) {
              printExceptionMessage(numLine, columnNumber)           ; 
            }
@@ -359,8 +358,7 @@ public class CustomPrefixer {
                                      String line                          , 
                                      String csv_separator                 , 
                                      List<String> separators              ,  
-                                     String _ontologiesLocation        )  {
-    
+                                     String _ontologiesLocation        )  {    
                 
       for ( String ontoKey : ontologiesKey )  {
                              
@@ -470,7 +468,7 @@ public class CustomPrefixer {
                                        .split(Pattern.quote("["))[1]
                                        .replace("]", "").trim()
                                        .split(",")) ;
-                  
+               
            map.put(collumn, asList) ;
                 
            } ) ;
@@ -526,7 +524,7 @@ public class CustomPrefixer {
         Objects.requireNonNull(inCsvFile)          ;
         Objects.requireNonNull(outCsvFile)         ;
         Objects.requireNonNull(csv_separator)      ;
-       
+            
         System.out.println(" -------------------------- "                  ) ;
         System.out.println(" + Info : "                                    ) ;
         System.out.println("   CSV         :        " + inCsvFile          ) ;
@@ -535,8 +533,7 @@ public class CustomPrefixer {
         System.out.println("   CSV_SEP     :        " + csv_separator      ) ;
         System.out.println("   Separators  :        " + separators         ) ;
         System.out.println("   Column Formula  :    " + columnFormulaNum   ) ;
-        System.out.println(" -------------------------- "                  ) ;
- 
+        System.out.println(" -------------------------- "                  ) ; 
         
         if( ! Writer.existDirectory(ontologiesLocation ) )        {
             printFileNotFoundExceptionAndExit(ontologiesLocation) ;
@@ -639,6 +636,5 @@ public class CustomPrefixer {
        }
        
     }
-
 }
 
