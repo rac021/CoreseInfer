@@ -561,9 +561,9 @@ public class CustomPrefixer {
         
         /* Load Graph */
          
-        final String _outCsvFile       = outCsvFile                    ;
+        final String _outCsvFile       = outCsvFile         ;
        
-        List<String> collectedLines    = new ArrayList<>()             ;
+        List<String> collectedLines    = new ArrayList<>()  ;
            
         try ( Stream<String> lines = Files.lines(Paths.get(inCsvFile)).skip(1)) {
                 
