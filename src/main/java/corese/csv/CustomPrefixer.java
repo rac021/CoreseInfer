@@ -42,10 +42,7 @@ import fr.inria.acacia.corese.exceptions.EngineException ;
  * -outCsv    "/si/csv/pipeline_si.csv" 
  * -csv_sep   ";"  
  * -separator ","  
- * -separator "/"  
- * -column    "0"
- * -column    "1"
- * -column    "2"
+ * -separator "/"
  * @ --- 
  * Syntaxe Formula ( in the CSV ) :
  *  col_num_x [ Taxref , Sandre] /  col_num_y [ Sandre ]
