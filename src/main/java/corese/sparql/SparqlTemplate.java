@@ -254,7 +254,8 @@ public class SparqlTemplate {
 /*
     # SPARQL Exemple
     # SPARQL TEMPLATE QUERY 
-    # ONE VARIABLE PER LINE 
+    # ONE VARIABLE PER LINE IN SELECT CLAUSE
+    # ONE VARIABLE PER LINE IN GROUP BY CLAUSE
       
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
