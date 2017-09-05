@@ -121,9 +121,12 @@ public class SparqlTemplate {
 
     private static String unCommentSelectVariable( String query , String variable ) { 
         
-      Pattern p = Pattern.compile( "#( *\\?" + variable.trim() + " ) *\n" ,
-                                   Pattern.CASE_INSENSITIVE )             ;
-                                   
+     // Pattern p = Pattern.compile( "#( *\\?" + variable.trim() + " ) *\n" ,
+     //                              Pattern.CASE_INSENSITIVE )             ;
+     
+      Pattern p = Pattern.compile( "\\s*#\\s*\\?" + variable + "\\s*\n"  ,
+                                   Pattern.CASE_INSENSITIVE )            ;
+     
       Matcher m = p.matcher(query )            ;
       String _query = query                    ;
       List<String> changed = new ArrayList<>() ;
