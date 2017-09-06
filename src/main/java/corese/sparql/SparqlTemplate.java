@@ -55,12 +55,13 @@ public class SparqlTemplate {
                   break                    ;
               case "-selectVars" :
                   selectVars = args[i + 1] ;
-                  break                    ;
-              case "-filter" :
-                  filters.add(args[i + 1]) ;
-                  break                    ;
+                  break                    ;              
               case "-outQuery" :
                   outQuery = args[i + 1]   ;
+                  break                    ;
+              case "-filters" :
+                  filters.addAll (
+                     arr( args [ i+1 ] ) ) ;
                   break                    ;
           }
        }
@@ -250,6 +251,12 @@ public class SparqlTemplate {
      return  Stream.of(arg.trim().trim().split(","))
                                  .map( v -> v.trim() ).collect(Collectors.toList()) ;
     }
+ 
+    private static List<String> arr ( String param )     {        
+     return Arrays.asList( param.trim()
+                                .replaceAll ( " + ", " " )
+                                .split(";"))             ;
+   }
    
 }
 
