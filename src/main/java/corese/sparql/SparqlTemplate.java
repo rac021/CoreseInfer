@@ -35,8 +35,14 @@ import java.util.stream.Collectors ;
 
 public class SparqlTemplate {
  
-    static final String FILTERS_TRACE =  " \n ### FILTER_TRACE ### \n\n" ;
-    
+    static final String FILTERS_TRACE  = " \n ### FILTER_TRACE ### \n\n" ;
+    final static String OPERATOR       = ":="                            ;
+    final static String RANGE_DATE_SEP = "_"                             ;
+    final static String VAR_SEP        = ";"                             ;
+    final static String INTRA_VAR_SEP  = ","                             ;
+    final static String NULL_DATE      = "null"                          ;
+    final static String CLOSE_RANGE    = "close"                         ;
+        
     public static void main(String[] args) throws IOException {
              
        List<String> filters     = new ArrayList<>() ;
@@ -80,7 +86,7 @@ public class SparqlTemplate {
               
      for ( String filter : filters ) {
 
-         if( filter.contains("-")) {
+         if( filter.contains(RANGE_DATE_SEP) ) {
              List list = parsIntervalFilter(filter) ;
              query = addFilterVariable( query                 , 
                                         (String)  list.get(0) , 
@@ -167,7 +173,7 @@ public class SparqlTemplate {
         String minComparator = " > " ;
         
         if( close != null && 
-            close.trim().equalsIgnoreCase("close")) {
+            close.trim().equalsIgnoreCase(CLOSE_RANGE)) {
           maxComparator = " <= " ;
           minComparator = " >= " ;
         }
@@ -219,43 +225,51 @@ public class SparqlTemplate {
       }
     }
     
-    private static  List parsListFilter( String arg )       {
+    private static  List parsListFilter( String arg )            {
     
-      String variable     = arg.trim().split(":")[0].trim() ;
+      String variable     = arg.trim().split(OPERATOR)[0].trim() ;
       
-      List<String> values = Stream.of(arg.trim().split(":")[1].trim().split(","))
-                                  .map( v -> v.trim() ).collect(Collectors.toList()) ;
+      List<String> values = Stream.of(arg.trim().split(OPERATOR)[1]
+                                                .trim().split(INTRA_VAR_SEP))
+                                  .map( v -> v.trim() )
+                                  .collect(Collectors.toList()) ;
                                   
       return Arrays.asList(variable, values) ;
       
     }
     
-    private static List parsIntervalFilter( String arg )    {
+    private static List parsIntervalFilter( String arg )      {
 
-      String variable = arg.trim().split(":")[0].trim() ;
+      String variable = arg.trim().split(OPERATOR)[0].trim()  ;
       
-      Integer min  = arg.trim().split(":")[1].trim() .split("-")[0].equalsIgnoreCase("null") ? 
+      Integer min  = arg.trim().split(OPERATOR)[1].trim()
+                        .split(RANGE_DATE_SEP)[0].equalsIgnoreCase(NULL_DATE) ? 
                      null :
-                     Integer.parseInt(arg.trim().split(":")[1].trim().split("-")[0]) ;
+                     Integer.parseInt(arg.trim().split(OPERATOR)[1]
+                            .trim().split(RANGE_DATE_SEP)[0]) ;
     
-      Integer max  = arg.trim().split(":")[1].trim() .split("-")[1].equalsIgnoreCase("null") ? 
+      Integer max  = arg.trim().split(OPERATOR)[1].trim()
+                        .split(RANGE_DATE_SEP)[1].equalsIgnoreCase(NULL_DATE) ? 
                      null :
-                     Integer.parseInt(arg.trim().split(":")[1].trim().split("-")[1]) ;
+                     Integer.parseInt(arg.trim().split(OPERATOR)[1]
+                            .trim().split(RANGE_DATE_SEP)[1]) ;
       
-      String close = arg.trim().split(":")[1].trim() .split("-")[2] ;
+      String close = arg.trim().split(OPERATOR)[1]
+                               .trim().split(RANGE_DATE_SEP)[2] ;
       
-      return Arrays.asList(variable, min, max, close)               ;    
+      return Arrays.asList(variable, min, max, close)           ;
     }
     
     private static List varToList ( String arg ) {
-     return  Stream.of(arg.trim().trim().split(","))
-                                 .map( v -> v.trim() ).collect(Collectors.toList()) ;
+     return  Stream.of(arg.trim().trim().split(INTRA_VAR_SEP))
+                   .map( v -> v.trim() )
+                   .collect(Collectors.toList()) ;
     }
  
     private static List<String> arr ( String param )     {        
      return Arrays.asList( param.trim()
                                 .replaceAll ( " + ", " " )
-                                .split(";"))             ;
+                                .split(VAR_SEP))         ;
    }
    
 }
