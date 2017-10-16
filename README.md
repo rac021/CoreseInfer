@@ -4,6 +4,11 @@
 
 inferred triples Generator
 
+| Branch    | build status  |
+|-----------|---------------|
+| [master](https://github.com/rac021/CoreseInfer/tree/master)  |[![Build Status](https://travis-ci.org/ontop/ontop.svg?branch=master)](https://travis-ci.org/rac021/CoreseInfer)|
+
+
 Steps : 
 
  **1-** `mvn clean install assembly:single `
