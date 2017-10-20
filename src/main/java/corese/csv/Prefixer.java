@@ -61,8 +61,8 @@ public class Prefixer {
     private static Load         ld  ;
     private static RuleEngine   re  ;
 
-    private static String getContainedSeparator(String label, List<String> separators) {
-        return separators.stream()
+    private static String getContainedSeparator(String label, List<String> intra_seps) {
+        return intra_seps.stream()
                          .filter( string -> label.contains(string))
                          .findFirst().orElse("");
 
@@ -370,7 +370,7 @@ public class Prefixer {
     public static void main(String[] args) throws IOException, Exception  {
 
         List<Integer> columns       = new ArrayList<>() ;
-        List<String> separators     = new ArrayList<>() ;
+        List<String> intra_seps     = new ArrayList<>() ;
                 
         String  csv_separator       = null  ;
         String  ontologyFile        = null  ;
@@ -403,8 +403,8 @@ public class Prefixer {
                             )                   ; break ;
                 case "-csv_sep"                 :
                     csv_separator = args[i + 1] ; break ;              
-                case "-separator"               :
-                    separators.add(args[i + 1]) ; break ;              
+                case "-intra_sep"               :
+                    intra_seps.add(args[i + 1]) ; break ;              
                 case "-ontology"                :
                     ontologyFile = args[i + 1]  ; break ;
                 case "-log"                     :
@@ -414,7 +414,7 @@ public class Prefixer {
                 case "-query "                  :
                      queryFile = args[i + 1]    ; break ;
                 case "-enable_full_uri"         :
-                     full_uri = true           ; break ;
+                     full_uri = true            ; break ;
                 case "-enable_uri_brackets"     :
                      enable_uri_brackets = true ; break ;
             }
@@ -438,7 +438,7 @@ public class Prefixer {
         System.out.println("   CSV OUT              : " + outCsvFile          ) ;
         System.out.println("   Prefix File          : " + prefixFile          ) ;
         System.out.println("   CSV_SEP              : " + csv_separator       ) ;
-        System.out.println("   Separators           : " + separators          ) ;
+        System.out.println("   intra_seps           : " + intra_seps          ) ;
         System.out.println("   Full_URI             : " + full_uri            ) ;
         System.out.println("   enable_uri_brackets  : " + enable_uri_brackets ) ;
         System.out.println(" --------------------------                     " ) ;
@@ -512,7 +512,7 @@ public class Prefixer {
                           
                           if( column.isEmpty()) return  ;
                               
-                          String parser = getContainedSeparator( column, separators ) ;
+                          String parser = getContainedSeparator( column, intra_seps ) ;
 
                           if( parser != null && ! parser.isEmpty() ) {
                                                             
