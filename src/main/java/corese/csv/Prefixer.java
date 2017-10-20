@@ -1,4 +1,3 @@
-
 package corese.csv ;
 
 import corese.Main ;
@@ -164,7 +163,7 @@ public class Prefixer {
                   + "\"@" + dt.getLang() ;
         }
          
-        if (dt.isURI() || dt.isBlank() )  {
+        if (dt.isURI() || dt.isBlank() )   {
            return "<" + dt.getLabel() +">" ;
         }
            
@@ -264,13 +263,16 @@ public class Prefixer {
         System.exit(0)                                                                                    ;
     }
     
-    private static String extract( Prefixer prefixer              ,
-                                   String sparql                  ,
-                                   String variable                ,
-                                   List<String> variables         ,
-                                   Map<String, String> prefixMap  ,
-                                   boolean full_path   ) throws Exception {
+    private static String extract( Prefixer prefixer             ,
+                                   String sparql                 ,
+                                   String variable               ,
+                                   List<String> variables        ,
+                                   Map<String, String> prefixMap ,
+                                   boolean full_uri              ,
+                                   boolean enable_uri_brackets   ) throws Exception {
      
+        Objects.requireNonNull ( prefixMap )            ;
+        
         List<String> result = prefixer.genericRequest( sparql.replace("{0}",variable.trim() ) , variables ) ;
 
         if(result.size() > 1) {
@@ -290,13 +292,18 @@ public class Prefixer {
         }
          
         if ( result.get(0).split(" ").length >= 2 ) {
-             
-            if( full_path ) return result.get(0).split(" ")[0].trim() ;
+
+            if( full_uri  ) {
+                if( enable_uri_brackets ) {
+                  return result.get(0).split(" ")[0].trim() ;
+                }
+                return result.get(0).split(" ")[0].trim().replace("<", "").replace(">", "") ;
+            }
                 
             String uri   = result.get(0).replace("<", "").replace(">", "").split("#")[0]    ;
+                       
             String Class = result.get(0).split(" ")[1].split("\\^\\^")[0].replace("\"", "") ;
 
-            Objects.requireNonNull ( prefixMap )            ;
             
             String inputPrefix = prefixMap.get( uri + "#" ) ;
 
@@ -315,19 +322,21 @@ public class Prefixer {
         throw new IllegalArgumentException(" Error while extracting Prefix:Class for variable -> "+ variable ) ;
     }
      
-    private static String treatLabel( Prefixer            prefixer         ,
-                                      String              sparql           ,
-                                      String              label            ,
-                                      List<String>        sparqlVariables  , 
-                                      Map<String, String> prefixMap        ,
-                                      boolean             full_path )      {
+    private static String treatLabel( Prefixer            prefixer            ,
+                                      String              sparql              ,
+                                      String              label               ,
+                                      List<String>        sparqlVariables     , 
+                                      Map<String, String> prefixMap           ,
+                                      boolean             full_uri            ,
+                                      boolean             enable_uri_brackets ) {
         try {
-            return  extract( prefixer        ,
-                             sparql          ,                               
-                             label           ,
-                             sparqlVariables ,
-                             prefixMap       ,
-                             full_path     ) ;
+            return  extract( prefixer            ,
+                             sparql              ,                               
+                             label               ,
+                             sparqlVariables     ,
+                             prefixMap           ,
+                             full_uri            ,
+                             enable_uri_brackets ) ;
             
         } catch( Exception ex ) {
             ex.printStackTrace();
@@ -335,19 +344,22 @@ public class Prefixer {
         return null ;
     }
     
-    private static boolean okResult( String var, String result, int numLine, int columnNumber ) {
+    private static boolean okResult( String var          , 
+                                     String result       , 
+                                     int    numLine      ,
+                                     int    columnNumber )         {
         
        if( result == null ) {
-           printExceptionMessage(numLine, columnNumber)            ; 
+           printExceptionMessage( numLine, columnNumber )          ; 
            return false ;
        }
-       else if ( result.equals(EMPTY_RESULT)) {
+       else if ( result.equals(EMPTY_RESULT ) ) {
            printEmptyMessageError(var, numLine, columnNumber )     ;
            return false ;
        }
-       else  if ( result.equals(NULL_RESULT)) {
-          printNullMessageError( result.replace( NULL_RESULT, "") ,
-                                 numLine, columnNumber)           ;
+       else  if ( result.equals(NULL_RESULT ) ) {
+          printNullMessageError( result.replace( NULL_RESULT, "")  ,
+                                 numLine, columnNumber)            ;
           return false ;
         } 
         
@@ -357,20 +369,20 @@ public class Prefixer {
     /* ENTRY MAIN */ 
     public static void main(String[] args) throws IOException, Exception  {
 
-        List<Integer> columns    = new ArrayList<>() ;
-        List<String> separators  = new ArrayList<>() ;
+        List<Integer> columns       = new ArrayList<>() ;
+        List<String> separators     = new ArrayList<>() ;
                 
-        String csv_separator  =  null ;
-        String ontologyFile   = null  ;
-        String outCsvFile     = null  ;
-        String prefixFile     = null  ;
-        String inCsvFile      = null  ;
-        String queryFile      = null  ;
-        String log            = null  ;
+        String  csv_separator       = null  ;
+        String  ontologyFile        = null  ;
+        String  outCsvFile          = null  ;
+        String  prefixFile          = null  ;
+        String  inCsvFile           = null  ;
+        String  queryFile           = null  ;
+        String  log                 = null  ;
             
-        boolean full_path     = false ;
-        
-        boolean priority      = false ;
+        boolean full_uri            = false ;
+        boolean priority            = false ;
+        boolean enable_uri_brackets = false ;
         
         for (int i = 0; i < args.length; i++) {
 
@@ -378,42 +390,33 @@ public class Prefixer {
 
             switch (token) {
 
-                case "-csv" :
-                    inCsvFile = args[i + 1] ;
-                    break ;                    
-                case "-outCsv" :
-                    outCsvFile = args[i + 1] ;
-                    break ;                    
-                case "-prefix" :
-                      prefixFile = args[i + 1] ;
-                    break ;
-                case "-column" :
+                case "-csv"                     :
+                    inCsvFile = args[i + 1]     ; break ;                    
+                case "-outCsv"                  :
+                    outCsvFile = args[i + 1]    ; break ;                    
+                case "-prefix"                  :
+                      prefixFile = args[i + 1]  ; break ;
+                case "-column"                  :
                     columns.add (
-                             Integer.parseInt (
-                                  args[i + 1] )
-                             ) ;
-                    break ;
-                case "-csv_sep":
-                    csv_separator = args[i + 1] ;
-                    break ;              
-                case "-separator":
-                    separators.add(args[i + 1]) ;
-                    break ;              
-                case "-ontology" :
-                    ontologyFile = args[i + 1] ;
-                    break ;
-                case "-log"  :
-                    log = args[i+1] ;
-                     break ;               
-                case "-priority"  :
-                     priority = true;
-                     break ;               
-                case "-query "  :
-                     queryFile = args[i + 1] ;
-                     break ;
-                case "-enable_full_path" :
-                     full_path = true ;
-                     break ;
+                            Integer.parseInt    (
+                               args[i + 1] )
+                            )                   ; break ;
+                case "-csv_sep"                 :
+                    csv_separator = args[i + 1] ; break ;              
+                case "-separator"               :
+                    separators.add(args[i + 1]) ; break ;              
+                case "-ontology"                :
+                    ontologyFile = args[i + 1]  ; break ;
+                case "-log"                     :
+                    log = args[i+1]             ; break ;               
+                case "-priority"                :
+                     priority = true            ; break ;               
+                case "-query "                  :
+                     queryFile = args[i + 1]    ; break ;
+                case "-enable_full_uri"         :
+                     full_uri = true           ; break ;
+                case "-enable_uri_brackets"     :
+                     enable_uri_brackets = true ; break ;
             }
         }
 
@@ -422,22 +425,23 @@ public class Prefixer {
         Objects.requireNonNull(outCsvFile)    ;
         Objects.requireNonNull(csv_separator) ;
        
-        if ( prefixFile == null && full_path == false ) {
+        if ( prefixFile == null && full_uri == false ) {
            System.out.println(" if -prefix is NULL, you have to " + 
                               " enable [ -enable_full_path ] " )  ;
            System.exit(0) ;
         }
         
-        System.out.println(" -------------------------- "     ) ;
-        System.out.println(" + Info : "                       ) ;
-        System.out.println("   Ontology    : " + ontologyFile ) ;
-        System.out.println("   CSV         : " + inCsvFile    ) ;
-        System.out.println("   CSV OUT     : " + outCsvFile   ) ;
-        System.out.println("   Prefix File : " + prefixFile   ) ;
-        System.out.println("   CSV_SEP     : " + csv_separator) ;
-        System.out.println("   Separators  : " + separators   ) ;
-        System.out.println("   Full_Paths  : " + full_path    ) ;
-        System.out.println(" -------------------------- "     ) ;
+        System.out.println(" --------------------------                     " ) ;
+        System.out.println(" + Info :                                       " ) ;
+        System.out.println("   Ontology             : " + ontologyFile        ) ;
+        System.out.println("   CSV                  : " + inCsvFile           ) ;
+        System.out.println("   CSV OUT              : " + outCsvFile          ) ;
+        System.out.println("   Prefix File          : " + prefixFile          ) ;
+        System.out.println("   CSV_SEP              : " + csv_separator       ) ;
+        System.out.println("   Separators           : " + separators          ) ;
+        System.out.println("   Full_URI             : " + full_uri            ) ;
+        System.out.println("   enable_uri_brackets  : " + enable_uri_brackets ) ;
+        System.out.println(" --------------------------                     " ) ;
  
         
         if( ! Writer.existFile( ontologyFile ) ) {
@@ -447,7 +451,7 @@ public class Prefixer {
         if( ! Writer.existFile( inCsvFile ) ) {
             printFileNotFoundExceptionAndExit(inCsvFile) ;
         }
-        if( full_path == false && ! Writer.existFile( prefixFile ) ) {
+        if( full_uri == false && ! Writer.existFile( prefixFile ) ) {
             printFileNotFoundExceptionAndExit(prefixFile) ;
         }
         
@@ -461,7 +465,7 @@ public class Prefixer {
         String _csv_separator =  csv_separator ;
         String currentSparql   ;
             
-        boolean _full_path = full_path ;
+        boolean _full_uri = full_uri ;
         
         if(queryFile != null ) {
            currentSparql = readFile(queryFile) ;
@@ -474,17 +478,19 @@ public class Prefixer {
         
         /* Load Graph */
          
-        Prefixer prefixer  =  getInstance( ontologyFile , true )               ;
+        Prefixer              prefixer              =  getInstance( ontologyFile , true ) ;
         
-        Map<String, String >  prefixMap        = getPrefixes( prefixFile )     ;
+        Map<String, String >  prefixMap             =  getPrefixes( prefixFile )          ;
         
-        List<String>          sparqlVariables  = getVariables( currentSparql ) ;
+        List<String>          sparqlVariables       =  getVariables( currentSparql )      ;
      
-        final String          _outCsvFile      = outCsvFile                    ;
+        final String          _outCsvFile           =  outCsvFile                         ;
        
-        List<String>          collectedLines   = new ArrayList<>()             ;
+        List<String>          collectedLines        =  new ArrayList<>()                  ;
+        
+        final boolean        _enable_uri_brackets  =  enable_uri_brackets                 ;
            
-        try ( Stream<String> lines = Files.lines(Paths.get(inCsvFile)).skip(1)) {
+        try ( Stream<String> lines = Files.lines(Paths.get(inCsvFile)).skip(1))           {
                 
                 lines.forEach ( new Consumer<String>() {
                     
@@ -514,12 +520,13 @@ public class Prefixer {
                               
                               for( String var : subColumnVariables ) {
                                
-                                  String treatLabel = treatLabel( prefixer                 ,
-                                                                  currentSparql            ,
-                                                                  var.replaceAll(" +", "") ,
-                                                                  sparqlVariables          ,
-                                                                  prefixMap                ,
-                                                                  _full_path  )            ; 
+                                  String treatLabel = treatLabel( prefixer                  ,
+                                                                  currentSparql             ,
+                                                                  var.replaceAll(" +", "" ) ,
+                                                                  sparqlVariables           ,
+                                                                  prefixMap                 ,
+                                                                  _full_uri                 ,
+                                                                  _enable_uri_brackets   )  ; 
                                   if( treatLabel == null              ||
                                       treatLabel.equals(EMPTY_RESULT) ||
                                       treatLabel.startsWith(NULL_RESULT)) {
@@ -531,7 +538,8 @@ public class Prefixer {
                                                                   var.replaceAll(" +", " ") ,
                                                                   sparqlVars                ,
                                                                   prefixMap                 ,
-                                                                 _full_path  )              ; 
+                                                                 _full_uri                  ,
+                                                                 _enable_uri_brackets     ) ;
 
                                          if( ! okResult(var, treatLabel, numLine, columnNumber )) {
                                              treatedColumns.put(  columnNumber , null )    ;
@@ -559,7 +567,8 @@ public class Prefixer {
                                                               column.replaceAll(" +", "") ,
                                                               sparqlVariables             ,
                                                               prefixMap                   ,    
-                                                             _full_path  )                ; 
+                                                             _full_uri                    ,
+                                                             _enable_uri_brackets       ) ; 
                               
                               if ( treatLabel == null              ||
                                    treatLabel.equals(EMPTY_RESULT) ||
@@ -567,12 +576,13 @@ public class Prefixer {
                                   
                                   List<String> sparqlVars   = getVariables( SPARQL_SEARCH_IN_LABEL ) ;
                                   
-                                  treatLabel = treatLabel( prefixer               ,
-                                                           SPARQL_SEARCH_IN_LABEL ,
-                                                           column                 ,
-                                                           sparqlVars             ,
-                                                           prefixMap              ,           
-                                                           _full_path  )          ; 
+                                  treatLabel = treatLabel( prefixer                ,
+                                                           SPARQL_SEARCH_IN_LABEL  ,
+                                                           column                  ,
+                                                           sparqlVars              ,
+                                                           prefixMap               ,           
+                                                           _full_uri               ,
+                                                           _enable_uri_brackets  ) ; 
                                                             
                                   if( ! okResult(column, treatLabel, numLine, columnNumber )) {
                                       treatedColumns.put(  columnNumber , null )      ;
