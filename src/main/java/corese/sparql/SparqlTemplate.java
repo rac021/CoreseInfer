@@ -25,8 +25,8 @@ import java.util.stream.Collectors ;
  * Exemple : 
  *  -queryPath  "./sparqlValidator.txt"
  *  -selectVars "site, ecotype"
- *  -filter     "year:1900-null-close"
- *  -filter     "site:paris, Nancy"
+ *  -filter     "year:=1900-null-close"
+ *  -filter     "site:=paris, Nancy"
  *  @
  *  SPARQL QUERY :
  *   - One variable per LINE in the SELECT QUERY
