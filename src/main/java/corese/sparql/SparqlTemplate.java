@@ -56,9 +56,7 @@ public class SparqlTemplate {
 
           switch (token) {
 
-              case "
-               
-               queryPath" :
+              case "-queryPath" :
                   queryPath = args[i + 1]  ;
                   break                    ;
               case "-selectVars" :
