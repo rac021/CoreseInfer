@@ -25,7 +25,7 @@ import java.util.stream.Collectors ;
  * Exemple : 
  *  -queryPath  "./sparqlValidator.txt"
  *  -selectVars "site, ecotype"
- *  -filter     "year:=1900-null-close"
+ *  -filter     "year:=1900_null_close"
  *  -filter     "site:=paris, Nancy"
  *  @
  *  SPARQL QUERY :
@@ -56,7 +56,9 @@ public class SparqlTemplate {
 
           switch (token) {
 
-              case "-queryPath" :
+              case "
+               
+               queryPath" :
                   queryPath = args[i + 1]  ;
                   break                    ;
               case "-selectVars" :
