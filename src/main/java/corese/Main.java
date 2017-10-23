@@ -382,8 +382,7 @@ public class Main {
                     case "-peek" :        peek = Integer.parseInt(args[i+1])           ;
                                           break ;
                     case "-flushCount" :  flushCount = Integer.parseInt(args[i+1])     ;
-                                          break ;
-                                   
+                                          break ;                                   
                 }
             }
             
