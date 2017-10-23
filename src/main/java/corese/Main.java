@@ -306,8 +306,6 @@ public class Main {
             }
         }
         
-        
-        
         private static List<String> listFiles (String fileOrFolder ) {
 
             if( ! Files.isDirectory(Paths.get(fileOrFolder))) {
