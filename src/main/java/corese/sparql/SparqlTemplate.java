@@ -58,10 +58,10 @@ public class SparqlTemplate {
 
               case "-queryPath" :
                   queryPath = args[i + 1].trim()   ;
-                  break                    ;
+                  break                            ;
               case "-selectVars" :
                   selectVars = args[i + 1].trim()  ;
-                  break
+                  break                            ;
               case "-outQuery" :
                   outQuery = args[i + 1].trim()    ;
                   break                            ;
