@@ -57,18 +57,18 @@ public class SparqlTemplate {
           switch (token) {
 
               case "-queryPath" :
-                  queryPath = args[i + 1]  ;
+                  queryPath = args[i + 1].trim()   ;
                   break                    ;
               case "-selectVars" :
-                  selectVars = args[i + 1] ;
-                  break                    ;              
+                  selectVars = args[i + 1].trim()  ;
+                  break
               case "-outQuery" :
-                  outQuery = args[i + 1]   ;
-                  break                    ;
+                  outQuery = args[i + 1].trim()    ;
+                  break                            ;
               case "-filters" :
                   filters.addAll (
-                     arr( args [ i+1 ] ) ) ;
-                  break                    ;
+                     arr( args [ i+1 ].trim() ) )  ;
+                  break                            ;
           }
        }
            
