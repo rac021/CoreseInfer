@@ -336,7 +336,7 @@ public class Main {
         }
         private static void printSnakeLine() {
            System.out.println("----------------------------"
-                              + "----------------------")         ;
+                              + "----------------------")        ;
         }
 
         public static void main( String[] args) throws IOException    {
