@@ -87,7 +87,6 @@ public class Main {
             System.out.println(" Loading file : " + fileToLoad ) ;
             ld.load( fileToLoad )   ;
         }
-
         
         private String toStringDataType ( Mapping m, String value ) {
           
@@ -126,7 +125,8 @@ public class Main {
                                     int     numBloc        ,
                                     int     numRequest     ,
                                     FORMAT  format         ,
-                                    int     flushCount
+                                    int     flushCount     ,
+                                    boolean ignore_line_br 
                                   ) throws  IOException    {
               
                 QueryProcess exec      =  QueryProcess.create(g) ;
@@ -165,7 +165,12 @@ public class Main {
                             res +=  dt  +  " "                         ;
                         }
                         
-                          /* Ignore literal values */                        
+                        /* Remove new Line On Demand */
+                        if( ignore_line_br )                 {
+                            res = res.replaceAll("\n", "  ") ;
+                        }
+                        
+                        /* Ignore literal values */                        
                         if( format == FORMAT.CSV || isSubjectURIOrBlank(res) ) {
                             count ++                   ;
                             lines.add( res + " . " )   ;
@@ -195,8 +200,8 @@ public class Main {
                     }
 
                     if(!lines.isEmpty()) {
-                       Writer.writeTextFile(lines,  currentFile) ;
-                       lines.clear()                             ;                    
+                       Writer.writeTextFile( lines , currentFile) ;
+                       lines.clear()                              ;                    
                     }
 
                     /* Delete last file if empty */
@@ -336,7 +341,7 @@ public class Main {
         }
         private static void printSnakeLine() {
            System.out.println("----------------------------"
-                              + "----------------------")        ;
+                              + "----------------------"   )     ;
         }
 
         public static void main( String[] args) throws IOException    {
@@ -352,10 +357,11 @@ public class Main {
             List<String> outs         = new ArrayList<>() ;
             List<Integer> fragments   = new ArrayList<>() ;
             List<String> formats      = new ArrayList<>() ;
-            String log                = null              ;
-            boolean entailment        = false             ;
-            int peek                  = 0                 ;
-            int flushCount            = 10_000            ;
+            String       log          = null              ;
+            boolean      entailment   = false             ;
+            int          peek         = 0                 ;
+            int          flushCount   = 10_000            ;
+            boolean ignore_line_break = false             ;
 
             for ( int i = 0 ; i < args.length ; i++ )     {
                 
@@ -363,26 +369,28 @@ public class Main {
                 
                 switch(token) {
                     
-                    case "-owl"         : owls.add(args[i+1])                          ;   
-                                          break ;
-                    case "-ttl"         : ttl.add(args[i+1])                           ;
-                                          break ;
-                    case "-out"         : outs.add(args[i+1])                          ;
-                                          break ;
-                    case "-q"           : queries.add(args[i+1])                       ; 
-                                          break ;
-                    case "-f"           : fragments.add(Integer.parseInt( args[i+1]) ) ;
-                                          break ;
-                    case "-e"           : entailment = true                            ;
-                                          break ;
-                    case "-F"           : formats.add(args[i+1].toUpperCase())         ;
-                                          break ;
-                    case "-log"         : log = args[i+1]                              ;
-                                          break ;
-                    case "-peek" :        peek = Integer.parseInt(args[i+1])           ;
-                                          break ;
-                    case "-flushCount" :  flushCount = Integer.parseInt(args[i+1])     ;
-                                          break ;                                   
+                    case "-owl"               : owls.add(args[i+1])                          ;   
+                                                break ;
+                    case "-ttl"               : ttl.add(args[i+1])                           ;
+                                                break ;
+                    case "-out"               : outs.add(args[i+1])                          ;
+                                                break ;
+                    case "-q"                 : queries.add(args[i+1])                       ; 
+                                                break ;
+                    case "-f"                 : fragments.add(Integer.parseInt( args[i+1]) ) ;
+                                                break ;
+                    case "-e"                 : entailment = true                            ;
+                                                break ;
+                    case "-F"                 : formats.add(args[i+1].toUpperCase())         ;
+                                                break ;
+                    case "-log"               : log = args[i+1]                              ;
+                                                break ;
+                    case "-peek" :              peek = Integer.parseInt(args[i+1])           ;
+                                                break ;
+                    case "-flushCount"        : flushCount = Integer.parseInt(args[i+1])     ;
+                                                break ;                                   
+                    case "-ignore_line_break" : ignore_line_break = true                     ;
+                                                break ;                                   
                 }
             }
             
@@ -407,7 +415,8 @@ public class Main {
                    queries.size() != formats.size() )
                )                                       {
                  
-                 System.out.println(" Bad size List queries-outs-fragment !! ") ;
+                 System.out.println(" Bad size List Queries " +
+                                    " /Outs / Fragment !! ")  ;
                  return ;
             }
 
@@ -447,13 +456,14 @@ public class Main {
             if(chunkedList.isEmpty() ) {
                 
               /* Load Only Ontology */
-               traverse( instance   ,
-                         queries    , 
-                         formats    ,  
-                         outs       ,
-                         fragments  ,
-                         numbBloc   ,
-                         flushCount ) ;
+               traverse( instance          ,
+                         queries           , 
+                         formats           ,  
+                         outs              ,
+                         fragments         ,
+                         numbBloc          ,
+                         flushCount        ,
+                         ignore_line_break ) ;
                
                _instance = null        ; 
                loop      = 0           ;             
@@ -468,13 +478,14 @@ public class Main {
 
                   loadFiles (chunk )                     ;
 
-                  traverse( instance   ,
-                            queries    , 
-                            formats    ,  
-                            outs       ,
-                            fragments  ,
-                            numbBloc   ,
-                            flushCount ) ;
+                  traverse( instance          ,
+                            queries           , 
+                            formats           ,  
+                            outs              ,
+                            fragments         ,
+                            numbBloc          ,
+                            flushCount        ,
+                            ignore_line_break ) ;
 
                   _instance = null        ; 
                   loop      = 0           ;             
@@ -492,13 +503,14 @@ public class Main {
                    
         }
         
-        private static void traverse(  Main         instance   ,
-                                      List<String>  queries    ,
-                                      List<String>  formats    ,
-                                      List<String>  outs       ,
-                                      List<Integer> fragments  ,
-                                      int           numBloc    ,
-                                      int           flushCount ) throws IOException {  
+        private static void traverse(  Main         instance        ,
+                                      List<String>  queries         ,
+                                      List<String>  formats         ,
+                                      List<String>  outs            ,
+                                      List<Integer> fragments       ,
+                                      int           numBloc         ,
+                                      int           flushCount      ,
+                                      boolean       ignore_line_br  ) throws IOException {  
             
           /* Travers Queries */
          for( int numQuery = 0 ; numQuery < queries.size() ; numQuery++ )    {
@@ -535,10 +547,11 @@ public class Main {
                                             variables               ,
                                             outs.get(numQuery)      ,  
                                             fragments.get(numQuery) ,
-                                            numBloc ++             ,
+                                            numBloc ++              ,
                                             numQuery                ,
                                             format                  ,  
-                                            flushCount )            ; 
+                                            flushCount              ,
+                                            ignore_line_br        ) ; 
 
               }
               else {
