@@ -1,5 +1,5 @@
 
-package corese;
+package corese ;
 
 /**
  *
@@ -42,7 +42,8 @@ public class Main {
  
         static int loop  = 0            ;
  
-        private static final String URI_VALIDATOR = "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
+        private static final String URI_VALIDATOR = 
+                       "^((https?|ftp|file)://|(www\\.)|(<_:))[-a-zA-Z0-9+&@#/%?=~_|!:,.;µs%°]*[-a-zA-Z0-9+&@#/%=~_|]" ;
      
         private Main(){}
 
@@ -186,12 +187,12 @@ public class Main {
                                                              numBloc    ,
                                                              numRequest , 
                                                              fragment   ,
-                                                             ++loop )   ;                              
+                                                             ++loop )   ;
                               Writer.checkFile( currentFile )           ;
                            }
                         }
 
-                        if( lines.size() % flushCount == 0 )          {                     
+                        if( lines.size() % flushCount == 0 )          {
                             Writer.writeTextFile(lines, currentFile ) ;
                             lines.clear()                             ;
                         }
@@ -201,13 +202,13 @@ public class Main {
 
                     if(!lines.isEmpty()) {
                        Writer.writeTextFile( lines , currentFile) ;
-                       lines.clear()                              ;                    
+                       lines.clear()                              ;
                     }
 
                     /* Delete last file if empty */
                     if(Files.lines( Paths
-                            .get(currentFile)).count() == 0 )   {
-                       Paths.get(currentFile).toFile().delete() ;
+                            .get(currentFile)).count() == 0 )    {
+                       Paths.get(currentFile).toFile().delete()  ;
                     } 
                 }
                 
@@ -229,14 +230,14 @@ public class Main {
                 */
         }
          
-          private static boolean isSubjectURIOrBlank( String path )   { 
+          private static boolean isSubjectURIOrBlank( String path )   {
           
           Objects.requireNonNull( path , 
-                " subject "                              +                 
+                " subject "                              +
                 " parameter should not be null " )       ;
           if(path.isEmpty()) return false                ;
           
-          String subject = path.split(" ")[0]            ;  
+          String subject = path.split(" ")[0]            ;
           
           if( subject.startsWith("<")  
               && subject.endsWith(">") )  {
@@ -369,13 +370,13 @@ public class Main {
                 
                 switch(token) {
                     
-                    case "-owl"               : owls.add(args[i+1])                          ;   
+                    case "-owl"               : owls.add(args[i+1])                          ;
                                                 break ;
                     case "-ttl"               : ttl.add(args[i+1])                           ;
                                                 break ;
                     case "-out"               : outs.add(args[i+1])                          ;
                                                 break ;
-                    case "-q"                 : queries.add(args[i+1])                       ; 
+                    case "-q"                 : queries.add(args[i+1])                       ;
                                                 break ;
                     case "-f"                 : fragments.add(Integer.parseInt( args[i+1]) ) ;
                                                 break ;
@@ -390,7 +391,7 @@ public class Main {
                     case "-flushCount"        : flushCount = Integer.parseInt(args[i+1])     ;
                                                 break ;                                   
                     case "-ignore_line_break" : ignore_line_break = true                     ;
-                                                break ;                                   
+                                                break ;
                 }
             }
             
@@ -510,7 +511,7 @@ public class Main {
                                       List<Integer> fragments       ,
                                       int           numBloc         ,
                                       int           flushCount      ,
-                                      boolean       ignore_line_br  ) throws IOException {  
+                                      boolean       ignore_line_br  ) throws IOException {
             
           /* Travers Queries */
          for( int numQuery = 0 ; numQuery < queries.size() ; numQuery++ )    {
@@ -521,8 +522,8 @@ public class Main {
               String       out       = outs.get(numQuery)                    ;
               int          fragment  = fragments.get(numQuery)               ;
                    
-              if ( isSelectQuery(queries.get(numQuery))                     || 
-                   ( ! isSelectQuery(queries.get(numQuery))                 &&  
+              if ( isSelectQuery(queries.get(numQuery))                     ||
+                   ( ! isSelectQuery(queries.get(numQuery))                 &&
                       ( ! format.toString().toLowerCase().
                            equals( FORMAT.TTL.toString().toLowerCase())
                       )
@@ -533,7 +534,7 @@ public class Main {
                        System.out.print  (" Query must have exactly 3 variables ( subject, predicate, object ) " ) ;
                        System.out.println(" when Tuttle format is activated (-ttl ) " )                            ;
                        System.out.println(" See https://www.w3.org/TR/turtle  " )                                  ;
-                       System.out.println(" Or try without -ttl parameter " )                                      ; 
+                       System.out.println(" Or try without -ttl parameter " )                                      ;
                        return ;
                    }
 
@@ -545,13 +546,13 @@ public class Main {
 
                    instance.genericRequest( queries.get(numQuery)   ,
                                             variables               ,
-                                            outs.get(numQuery)      ,  
+                                            outs.get(numQuery)      ,
                                             fragments.get(numQuery) ,
                                             numBloc ++              ,
                                             numQuery                ,
-                                            format                  ,  
+                                            format                  ,
                                             flushCount              ,
-                                            ignore_line_br        ) ; 
+                                            ignore_line_br        ) ;
 
               }
               else {
