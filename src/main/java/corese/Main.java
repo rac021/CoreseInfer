@@ -429,9 +429,9 @@
                 }
             }
             
-            System.out.println( " OWLS : " )                              ;
+            System.out.println( " Ontologies ( owl )   : " )              ;
             owls.stream().forEach( e -> System.out.println("  " + e ) )   ;
-            System.out.println(" TTLS  : " )                              ;
+            System.out.println(" Semantic Data ( ttl ) : " )              ;
             ttl.stream().forEach( e ->  System.out.println("  " + e ) )   ;
             System.out.println( "                                   " )   ;
             
