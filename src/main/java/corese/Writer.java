@@ -46,9 +46,9 @@ public class Writer {
 
     private static void checkDirectory( String directory ) throws IOException {
       
-     Path path = Paths.get(directory)                                    ;
-     if(!Files.exists(path, new LinkOption[]{ LinkOption.NOFOLLOW_LINKS}))
-       Files.createDirectory(path)                                       ;
+     Path path = Paths.get(directory)                                     ;
+     if(!Files.exists(path, new LinkOption[]{ LinkOption.NOFOLLOW_LINKS}) )
+       Files.createDirectory(path)                                        ;
     }
     
     public static void deleteFile ( String path ) throws IOException {
@@ -69,8 +69,8 @@ public class Writer {
     }
     
     public static boolean existDirectory( String path ) throws IOException {
-        File file = new File(path)                                    ;
-        return file.exists() && file.isDirectory()                    ;
+        File file = new File(path)                                         ;
+        return file.exists() && file.isDirectory()                         ;
     }
     
     public static void checkNotEmptyDirectory(String directory) throws IOException {
@@ -100,4 +100,27 @@ public class Writer {
         
         return path  ;
     }
+
+    public static String getfileName( String outputFile ) {
+       Path path = Paths.get(outputFile)    ;
+       return path.getFileName().toString() ;
+    }    
+      
+    public static String getFileExtension( String fileName ) {      
+       if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0 )
+       return fileName.substring(fileName.lastIndexOf(".") ) ;
+       else return "" ;
+    }
+     
+    public static String getFileWithoutExtension( String fileName ) {      
+         return fileName.replaceFirst("[.][^.]+$", "") ;
+    }
+    
+     public static String getFolder( String outputFile ) {
+       if(outputFile.endsWith("/")) return outputFile ;
+       Path path = Paths.get(outputFile)              ;
+       return path.getParent().toString() + "/"       ;
+    }
+
 }
+
