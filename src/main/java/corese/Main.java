@@ -1,36 +1,36 @@
 
-package corese ;
+ package corese ;
 
-/**
+ /**
  *
  * @author ryahiaoui
-*/
+ */
 
-import java.util.List                                    ;
-import java.util.Arrays                                  ;
-import java.util.Objects                                 ;
-import java.io.IOException                               ;
-import java.nio.file.Files                               ;
-import java.nio.file.Paths                               ;
-import java.util.ArrayList                               ;
-import java.util.regex.Pattern                           ;
-import java.util.logging.Level                           ;
-import java.util.logging.Logger                          ;
-import java.util.stream.IntStream                        ;
-import java.util.stream.Collectors                       ;
-import fr.inria.edelweiss.kgtool.load.Load               ;
-import fr.inria.acacia.corese.api.IDatatype              ;
-import fr.inria.edelweiss.kgraph.core.Graph              ;
-import fr.inria.edelweiss.kgram.core.Mapping             ;
-import fr.inria.edelweiss.kgram.core.Mappings            ;
-import static java.util.stream.Collectors.toList         ;
-import fr.inria.edelweiss.kgraph.rule.RuleEngine         ;
-import fr.inria.edelweiss.kgtool.print.ResultFormat      ;
-import fr.inria.edelweiss.kgraph.query.QueryProcess      ;
-import fr.inria.acacia.corese.exceptions.EngineException ;
+ import java.util.List                                    ;
+ import java.util.Arrays                                  ;
+ import java.util.Objects                                 ;
+ import java.io.IOException                               ;
+ import java.nio.file.Files                               ;
+ import java.nio.file.Paths                               ;
+ import java.util.ArrayList                               ;
+ import java.util.regex.Pattern                           ;
+ import java.util.logging.Level                           ;
+ import java.util.logging.Logger                          ;
+ import java.util.stream.IntStream                        ;
+ import java.util.stream.Collectors                       ;
+ import fr.inria.edelweiss.kgtool.load.Load               ;
+ import fr.inria.acacia.corese.api.IDatatype              ;
+ import fr.inria.edelweiss.kgraph.core.Graph              ;
+ import fr.inria.edelweiss.kgram.core.Mapping             ;
+ import fr.inria.edelweiss.kgram.core.Mappings            ;
+ import static java.util.stream.Collectors.toList         ;
+ import fr.inria.edelweiss.kgraph.rule.RuleEngine         ;
+ import fr.inria.edelweiss.kgtool.print.ResultFormat      ;
+ import fr.inria.edelweiss.kgraph.query.QueryProcess      ;
+ import fr.inria.acacia.corese.exceptions.EngineException ;
 
 
-public class Main {
+ public class Main {
       
         private static volatile Main _instance = null ;
                 
@@ -123,11 +123,12 @@ public class Main {
                                     List<String> variables ,
                                     String  outputFile     , 
                                     int     fragment       , 
-                                    int     numBloc        ,
+                                    int     numChunk       ,
                                     int     numRequest     ,
                                     FORMAT  format         ,
                                     int     flushCount     ,
-                                    boolean ignore_line_br 
+                                    boolean ignore_line_br ,
+                                    String  extension
                                   ) throws  IOException    {
               
                 QueryProcess exec      =  QueryProcess.create(g) ;
@@ -151,10 +152,11 @@ public class Main {
                     String currentFile    ;
 
                     currentFile =  getCurrentFile( outputFile , 
-                                                   numBloc    ,
+                                                   numChunk   ,
                                                    numRequest , 
                                                    fragment   , 
-                                                   loop     ) ;
+                                                   loop       ,
+                                                   extension  ) ;
                     
                     Writer.checkFile( currentFile )           ;
 
@@ -177,18 +179,19 @@ public class Main {
                             lines.add( res + " . " )   ;
                         }
 
-                        if( fragment != 0 && count % fragment == 0  )   {
+                        if( fragment != 0 && count % fragment == 0  )    {
                             
                            if( ! lines.isEmpty() )  {
                                
-                              Writer.writeTextFile(lines, currentFile ) ;
-                              lines.clear();
-                              currentFile =  getCurrentFile( outputFile , 
-                                                             numBloc    ,
-                                                             numRequest , 
-                                                             fragment   ,
-                                                             ++loop )   ;
-                              Writer.checkFile( currentFile )           ;
+                              Writer.writeTextFile(lines, currentFile )  ;
+                              lines.clear()                              ;
+                              currentFile =  getCurrentFile( outputFile  , 
+                                                             numChunk    ,
+                                                             numRequest  , 
+                                                             fragment    ,
+                                                             ++loop      ,
+                                                             extension ) ;
+                              Writer.checkFile( currentFile )            ;
                            }
                         }
 
@@ -288,28 +291,50 @@ public class Main {
                         .contains("select ")   ;
         }
         
-        private static String getCurrentFile(  String outFile , 
-                                               int numBloc    ,
-                                               int numRequest , 
-                                               int fragment   ,
-                                               int loop )     {
+        private static String getCurrentFile(  String outFile    , 
+                                               int    numChunk   ,
+                                               int    numRequest , 
+                                               int    fragment   ,
+                                               int    loop       ,
+                                               String ext      ) {
+
+            String  folder       = Writer.getFolder ( outFile )          ;
+            
+            String  filefullName = outFile.equals(folder)                ?
+                                   "data"                                : 
+                                   Writer.getfileName(outFile )          ;
+            
+            String fileName      = Writer.getFileWithoutExtension ( 
+                                                          filefullName ) ;
+                    
+            String  ext_f        = Writer.getFileExtension(filefullName) ; 
+            
+            if( ext_f == null || ext_f.isEmpty() )  {
+                
+                if ( ext == null || ext.isEmpty() ) {
+                     ext = ".ttl"                   ;
+                }
+                else if( ! ext.startsWith("."))     {
+                    ext = "." + ext                 ;
+                }
+                
+                ext_f = ext                         ;
+            }
+            
             if ( fragment <= 0 ) {
-              return outFile ; 
+                
+                return  printInfoFile ( 
+                        folder     +  fileName +  "_corese_req_"  + 
+                        numRequest + "_chunk_" +  numChunk        +
+                        ext_f   )                                 ;
             }
-            if(Files.isDirectory(Paths.get(outFile)) ) {
-                  if(outFile.endsWith("/")) {
-                    return outFile + numBloc + "." + numRequest + "." + loop      ; 
-                  }
-                  else {
-                   return outFile + "/" + numBloc + "." + numRequest + "." + loop ; 
-                  }
-            }
+        
             else {
-                if(fragment > 0 ) {
-                  return outFile + numBloc + "."  + loop ; }
-                else {
-                  return outFile + numBloc ;               }
-            }
+                   return  printInfoFile (
+                           folder     +  fileName + "_corese_req_" + 
+                           numRequest + "_chunk_" +  numChunk      + 
+                           "_idx_"    + loop      +  ext_f       ) ; 
+                  }
         }
         
         private static List<String> listFiles (String fileOrFolder ) {
@@ -342,8 +367,14 @@ public class Main {
         }
         private static void printSnakeLine() {
            System.out.println("----------------------------"
-                              + "----------------------"   )     ;
+                              + "----------------------"      )  ;
         }
+        
+        private static String printInfoFile ( String pathFile )      {
+            System.out.println("  --> Generate File : " + pathFile ) ;
+            return pathFile                                          ;
+        }
+
 
         public static void main( String[] args) throws IOException    {
             
@@ -363,6 +394,7 @@ public class Main {
             int          peek         = 0                 ;
             int          flushCount   = 10_000            ;
             boolean ignore_line_break = false             ;
+            String  extension         = ""                ;
 
             for ( int i = 0 ; i < args.length ; i++ )     {
                 
@@ -391,6 +423,8 @@ public class Main {
                     case "-flushCount"        : flushCount = Integer.parseInt(args[i+1])     ;
                                                 break ;                                   
                     case "-ignore_line_break" : ignore_line_break = true                     ;
+                                                break ;
+                    case "-extension"         : extension = args[i+1]                        ;
                                                 break ;
                 }
             }
@@ -444,17 +478,17 @@ public class Main {
                                      .collect(Collectors.toList()) ;
             }
             
-            int numbBloc = 0 ;
+            int numChunk = 0 ;
 
             printStartLine()          ;     
             System.out.println( " " ) ;
                 
             /* Load Graph */
-            Main instance = Main.getInstance( owls , entailment )        ;
+            Main instance = Main.getInstance( owls , entailment ) ;
               
-            System.out.println( " --- " )                                ; 
+            System.out.println( " --- " )                         ; 
               
-            if(chunkedList.isEmpty() ) {
+            if(chunkedList.isEmpty() )  {
                 
               /* Load Only Ontology */
                traverse( instance          ,
@@ -462,9 +496,10 @@ public class Main {
                          formats           ,  
                          outs              ,
                          fragments         ,
-                         numbBloc          ,
+                         numChunk          ,
                          flushCount        ,
-                         ignore_line_break ) ;
+                         ignore_line_break ,
+                         extension       ) ;
                
                _instance = null        ; 
                loop      = 0           ;             
@@ -484,9 +519,10 @@ public class Main {
                             formats           ,  
                             outs              ,
                             fragments         ,
-                            numbBloc          ,
+                            numChunk ++       ,
                             flushCount        ,
-                            ignore_line_break ) ;
+                            ignore_line_break ,
+                            extension       ) ;
 
                   _instance = null        ; 
                   loop      = 0           ;             
@@ -504,14 +540,15 @@ public class Main {
                    
         }
         
-        private static void traverse(  Main         instance        ,
-                                      List<String>  queries         ,
-                                      List<String>  formats         ,
-                                      List<String>  outs            ,
-                                      List<Integer> fragments       ,
-                                      int           numBloc         ,
-                                      int           flushCount      ,
-                                      boolean       ignore_line_br  ) throws IOException {
+        private static void traverse( Main          instance       ,
+                                      List<String>  queries        ,
+                                      List<String>  formats        ,
+                                      List<String>  outs           ,
+                                      List<Integer> fragments      ,
+                                      int           numChunk       ,
+                                      int           flushCount     ,
+                                      boolean       ignore_line_br ,
+                                      String        extension      ) throws IOException {
             
           /* Travers Queries */
          for( int numQuery = 0 ; numQuery < queries.size() ; numQuery++ )    {
@@ -543,16 +580,18 @@ public class Main {
                    System.out.println(" + Executing query :  " + query           ) ;
                    System.out.println(" + FRAGMENT        :  " + fragment        ) ;
                    System.out.println(" + Out             :  " + out             ) ;
+                   System.out.println("                                       " ) ;
 
                    instance.genericRequest( queries.get(numQuery)   ,
                                             variables               ,
                                             outs.get(numQuery)      ,
                                             fragments.get(numQuery) ,
-                                            numBloc ++              ,
+                                            numChunk                ,
                                             numQuery                ,
                                             format                  ,
                                             flushCount              ,
-                                            ignore_line_br        ) ;
+                                            ignore_line_br          ,
+                                            extension             ) ;
 
               }
               else {
@@ -562,5 +601,5 @@ public class Main {
          }
         
         }
-     
-}
+ }
+
