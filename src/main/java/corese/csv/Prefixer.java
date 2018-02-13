@@ -263,6 +263,19 @@ public class Prefixer {
         System.exit(0)                                                                                    ;
     }
     
+    private static long totalLinesFileIgnoringEmptyLines ( String path ) {
+    
+     try {
+            return Files.lines( Paths.get(path))
+                        .filter( line -> line != null && ! line.trim().isEmpty() )
+                        .count() ;
+        } catch (IOException ex) {
+            Logger.getLogger(Prefixer.class.getName()).log(Level.SEVERE, null, ex) ;
+        }
+     return 0 ;
+    }
+    
+    
     private static String extract( Prefixer prefixer             ,
                                    String sparql                 ,
                                    String variable               ,
@@ -493,18 +506,33 @@ public class Prefixer {
         try ( Stream<String> lines = Files.lines(Paths.get(inCsvFile)).skip(1))           {
                 
                 lines.forEach ( new Consumer<String>() {
-                    
+                  
                   int numLine = 2 ; /* Ingore Header and Count from 1 */
                   
                   @Override
                   public void accept(String line) {
                   
+                    if ( line == null || line.isEmpty() ) return          ;
+                    
                     Map<Integer, String> treatedColumns = new HashMap<>() ;
 
                     columns.forEach( columnNumber ->    {
 
                       try {
 
+                          int total_columns = line.replaceAll(" +", " " )
+                                                  .split(_csv_separator).length ;
+                          
+                          if( columnNumber > total_columns - 1 ) {
+                              
+                              throw new IllegalArgumentException("\n \n "
+                                        + "ArrayIndexOutOfBoundsException : "
+                                        + " trying to acces the column ["
+                                        + columnNumber 
+                                        + "] When Max column = "
+                                        + total_columns + "\n ") ;
+                          }
+                          
                           String column =  line.replaceAll(" +", " " )
                                                .split(_csv_separator)[columnNumber]   ;
                             
@@ -620,7 +648,8 @@ public class Prefixer {
        }
        
        if( ! collectedLines.isEmpty() &&  
-           ( Files.lines( Paths.get(inCsvFile)).count() -1 ) == collectedLines.size() ) {
+           ( totalLinesFileIgnoringEmptyLines( inCsvFile) -1 ) 
+                                              == collectedLines.size() )       {
         
            Writer.checkFile( _outCsvFile                                     ) ;
            String header = Files.lines(Paths.get(inCsvFile)).findFirst().get() ;         

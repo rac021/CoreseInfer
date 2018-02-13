@@ -397,7 +397,20 @@ public class CustomPrefixer {
         loadAndSaveOntology( directory ,
                              ontoKey   ,
                              true      ) ;
-         
+        
+        int total_columns = line.replaceAll(" +", " " )
+                                .split(csv_separator).length ;
+                          
+        if( columnNumber > total_columns - 1 ) {
+                              
+            throw new IllegalArgumentException("\n \n "
+                      + "ArrayIndexOutOfBoundsException : "
+                      + " trying to acces the column ["
+                      + columnNumber 
+                      + "] When Max column = "
+                      + total_columns + "\n ") ;
+        }
+        
         String columnContent =  line.replaceAll(" +", " " )
                                     .split(csv_separator)[columnNumber]  ;
         try {

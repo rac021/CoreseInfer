@@ -511,8 +511,9 @@
                          ignore_line_break ,
                          extension       ) ;
                
-               _instance = null        ; 
-               loop      = 0           ;             
+               ld.reset()              ;
+               g.clean ()              ;
+               loop   = 0              ; 
                System.out.println(" ") ;
             }
             
@@ -534,8 +535,9 @@
                             ignore_line_break ,
                             extension       ) ;
 
-                  _instance = null        ; 
-                  loop      = 0           ;             
+                  ld.reset()              ;
+                  g.clean ()              ;
+                  loop   = 0              ;             
                   System.out.println(" ") ;
 
                 }

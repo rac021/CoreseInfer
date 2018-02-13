@@ -42,9 +42,12 @@ public class SparqlTemplate {
     final static String INTRA_VAR_SEP  = ","                             ;
     final static String NULL_DATE      = "null"                          ;
     final static String CLOSE_RANGE    = "close"                         ;
-        
+    
+    final static String matcher        = "^[0-9]+_[0-9]+(_close)?$"      ;
+    final static Pattern p             = Pattern.compile(matcher)        ;  
+    
     public static void main(String[] args) throws IOException {
-             
+
        List<String> filters     = new ArrayList<>() ;
        String       queryPath   = null              ;
        String       selectVars  = null              ;
@@ -86,7 +89,7 @@ public class SparqlTemplate {
               
      for ( String filter : filters ) {
 
-         if( filter.contains(RANGE_DATE_SEP) ) {
+         if( isDateFomat(filter) )                  {
              List list = parsIntervalFilter(filter) ;
              query = addFilterVariable( query                 , 
                                         (String)  list.get(0) , 
@@ -254,8 +257,13 @@ public class SparqlTemplate {
                      Integer.parseInt(arg.trim().split(OPERATOR)[1]
                             .trim().split(RANGE_DATE_SEP)[1]) ;
       
-      String close = arg.trim().split(OPERATOR)[1]
-                               .trim().split(RANGE_DATE_SEP)[2] ;
+     // String close = arg.trim().split(OPERATOR)[1]
+     //                          .trim().split(RANGE_DATE_SEP)[2] ;
+      
+      String close = arg.trim()
+                        .toLowerCase()
+                        .endsWith(RANGE_DATE_SEP + CLOSE_RANGE ) ?
+                        CLOSE_RANGE : null ;
       
       return Arrays.asList(variable, min, max, close)           ;
     }
@@ -271,9 +279,20 @@ public class SparqlTemplate {
                                 .replaceAll ( " + ", " " )
                                 .split(VAR_SEP))         ;
    }
+    
+   
+   private static boolean isDateFomat( String value ) {       
+      /* True if value is like 
+          2000_2010_close 
+       Or 2000_2010_CLOSE
+       Or 2000_2010
+       False else   
+       */      
+      Matcher m = p.matcher( value.toLowerCase() )  ;
+      return m.matches() ;
+   }
    
 }
-
 
 /*
     # SPARQL Exemple
